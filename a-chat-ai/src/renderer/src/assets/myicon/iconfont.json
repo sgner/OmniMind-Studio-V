@@ -1,0 +1,30 @@
+{
+  "id": "4527522",
+  "name": "no name",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "34010152",
+      "name": "chatGPT",
+      "font_class": "chatGPT",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    },
+    {
+      "icon_id": "18267905",
+      "name": "安全隐私",
+      "font_class": "anquanyinsi",
+      "unicode": "e98b",
+      "unicode_decimal": 59787
+    },
+    {
+      "icon_id": "34033601",
+      "name": "ChatGPT",
+      "font_class": "ChatGPT",
+      "unicode": "e612",
+      "unicode_decimal": 58898
+    }
+  ]
+}

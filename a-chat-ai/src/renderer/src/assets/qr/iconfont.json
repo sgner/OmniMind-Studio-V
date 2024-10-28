@@ -1,0 +1,16 @@
+{
+  "id": "4527523",
+  "name": "gpt",
+  "font_family": "element-icons",
+  "css_prefix_text": "el-icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "3779635",
+      "name": "二维码",
+      "font_class": "cansaitubiaozhuanqu-",
+      "unicode": "e603",
+      "unicode_decimal": 58883
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "4679132",
+  "name": "faild",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "18992722",
+      "name": "加载失败、失败",
+      "font_class": "jiazaishibaishibai",
+      "unicode": "e6da",
+      "unicode_decimal": 59098
+    }
+  ]
+}

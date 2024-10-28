@@ -1,0 +1,6 @@
+//重写element plus 全局主题颜色
+@forward "element-plus/theme-chalk/src/common/var.scss" with (
+$colors:
+("primary": ("base": #a58dff),
+"danger":("base": #ee6a58),));
+@use "element-plus/theme-chalk/src/index.scss" as *;

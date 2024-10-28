@@ -1,0 +1,23 @@
+{
+  "id": "4659130",
+  "name": "git",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "33258183",
+      "name": "gitee",
+      "font_class": "gitee",
+      "unicode": "e848",
+      "unicode_decimal": 59464
+    },
+    {
+      "icon_id": "34698079",
+      "name": "github",
+      "font_class": "github",
+      "unicode": "e603",
+      "unicode_decimal": 58883
+    }
+  ]
+}

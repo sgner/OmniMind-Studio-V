@@ -1,0 +1,27 @@
+@font-face {
+  font-family: "iconfont"; /* Project id 4527522 */
+  src: url('iconfont.woff2?t=1723520422096') format('woff2'),
+       url('iconfont.woff?t=1723520422096') format('woff'),
+       url('iconfont.ttf?t=1723520422096') format('truetype');
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-chatGPT:before {
+  content: "\e600";
+}
+
+.icon-anquanyinsi:before {
+  content: "\e98b";
+}
+
+.icon-ChatGPT:before {
+  content: "\e612";
+}
+
