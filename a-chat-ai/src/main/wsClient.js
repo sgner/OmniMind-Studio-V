@@ -6,7 +6,7 @@ let lockReconnect = false;
 let wsUrl = null;
 let wSender = null;
 let needReconnect = null;
-import {saveOrUpdateChatSessionBatch, updateSessionInfo4Message} from './db/ChatSessionModel'
+import {addChatSession, saveOrUpdateChatSessionBatch, updateSessionInfo4Message} from './db/ChatSessionModel'
 import {saveMessage, saveMessageBatch} from "./db/ChatMessageModel";
 import {updateNoReadCount} from "./db/ChatSessionModel";
 
@@ -32,9 +32,9 @@ const createWs = ()=>{
     maxReConnectTimes = 5;
   }
   ws.onmessage =  async (e)=>{
-    console.log("收到服务端消息",e.data);
+    // console.log("收到服务端消息",e.data);
     const message = JSON.parse(e.data);
-    console.log("收到服务端消息",message.extendData.messageList);
+    // console.log("收到服务端消息",message.extendData.messageList);
     // console.log("收到服务端消息",message.extendData.messageList[0].answers);
     switch(message.messageType){
       case 0:
@@ -45,9 +45,9 @@ const createWs = ()=>{
         break;
       case 12:
       case 2:
-        // TODO 判断是否是群消息
         console.log("消息为2")
         await saveMessage(message.extendData);
+        //TODO updateSession BUG 未解决
         await updateSessionInfo4Message(store.getUserData("currentSessionId"),
           {
             sessionId:message.sessionId,
@@ -60,6 +60,17 @@ const createWs = ()=>{
         );
         await wSender.send("receiveMessage",{messageType: 0});
         break;
+      case 13:
+        console.log("消息为13")
+        await saveMessage(message.extendData.messageDTO);
+        // console.log("message",JSON.stringify(message))
+        const session  =  message.extendData.sessionChatUser
+        session.status = 1
+        session.noReadCount = 0
+        session.lastTime =new Date(session.lastTime).getTime()
+        // console.log("session",session)
+        await addChatSession(session)
+        await wSender.send("receiveMessage",{messageType: 0})
     }
   }
   ws.onclose = ()=>{

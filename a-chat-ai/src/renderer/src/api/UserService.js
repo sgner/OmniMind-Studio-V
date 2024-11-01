@@ -8,3 +8,7 @@ export const likeService = (comment)=>{
 export const commentService = (data)=>{
    return request.post(api.comment,data)
 }
+
+export const createSessionService = (data)=>{
+   return request.get(api.createSession,{params:{robotId:data}})
+}

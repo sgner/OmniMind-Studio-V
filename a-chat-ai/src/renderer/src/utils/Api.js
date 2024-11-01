@@ -1,4 +1,5 @@
 const api = {
+  createSession:"/user/new/session",
   like:"/user/comment/like",
   comments:"/robot/comments",
   comment:"/user/comment",

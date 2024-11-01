@@ -13,6 +13,7 @@ import {loadUploadedFile} from "../../api/ChatSessionMessageService";
 import {updateSessionNoReadCountService} from "../../api/UpdateService";
 import {useUploadDataStore} from "../../stores/UploadData";
 import {ElLoading, ElMessage} from "element-plus";
+import {useRoute, useRouter} from "vue-router";
 const chatSessionStore  = useChatSessionStore();
 const collapsedStore = useCollapsedStore();
 const uploadDataStore = useUploadDataStore()
@@ -42,6 +43,11 @@ onMounted(() => {
     }
   });
 });
+
+onMounted(async ()=>{
+  const sessionList = await preApi.loadChatSession();
+  chatSessionStore.setChatSession(sessionList);
+})
 const setTop = async (id,topType)=>{
   const session = await preApi.setTop(id,topType);
   sortChatSession(session)
@@ -100,6 +106,9 @@ const chatSessionClickHandler = async (item)=>{
    await updateSessionNoReadCountService(currentChatSession.value.sessionId);
 }
 const loadChatMessage = async () =>{
+     if(Object.keys(currentChatSession.value).length===0|| currentChatSession.value === null || currentChatSession.value === undefined){
+         return;
+     }
      if(messageCountInfo.noData){
         return;
      }
@@ -130,7 +139,7 @@ const goBottom = () => {
 
 const sortChatSession = (list)=>{
      list.sort((a,b)=>{
-          const topTypeResult = a.topType - b.topType;
+          const topTypeResult = b.topType-a.topType;
           if (topTypeResult === 0){
              return a.lastTime - b.lastTime;
           }else{
@@ -144,6 +153,17 @@ watch(() => chatMessageStore.message, (newMessages) => {
 const showGroupDetail = ()=>{
    console.log("show group detail")
 }
+const router = useRouter();
+const route = useRoute();
+const createSession = async ()=>{
+  if ( Object.keys(route.query).length !== 0&&route.query !== null){
+    console.log(route.query)
+    currentChatSession.value = route.query;
+    console.log(JSON.stringify(currentChatSession.value))
+    await chatSessionClickHandler(route.query);
+  }
+}
+createSession();
 
 </script>
 
@@ -180,7 +200,7 @@ const showGroupDetail = ()=>{
       <div class="iconfont icon-more no-drag" v-if="currentChatSession.robotType === 1" @click="showGroupDetail()">
       </div>
       <div class="chat-panel" v-show="Object.keys(currentChatSession).length>0">
-            <div class="message-panel" id="message-panel">
+            <div class="message-panel"  v-infinite-scroll="loadMessage" id="message-panel">
                 <div class="message-item" v-for="(data,index) in chatMessageStore.message" :id="'message' + data.question.id">
                   <ChatMessage :data="data" :currentChatSession="currentChatSession"></ChatMessage>
                 </div>
@@ -196,7 +216,7 @@ const showGroupDetail = ()=>{
 .chat-panel {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 60px); /* 保证聊天面板占据除顶部栏之外的剩余高度 */
+  height: calc(100vh - 70px); /* 保证聊天面板占据除顶部栏之外的剩余高度 */
 }
 /* 消息面板设置为可滚动 */
 .message-panel {

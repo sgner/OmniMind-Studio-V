@@ -16,12 +16,10 @@ const routes=[
     path:"/main",
     name:'主界面',
     component: main,
-    redirect:"/main/chat",
     children:[
       {
         path:"/main/chat",
         name:'聊天主窗口',
-
         component: ()=>import("@/views/chat/Chat.vue")
       },
       {

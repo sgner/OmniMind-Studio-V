@@ -22,7 +22,6 @@ const robotTypeStore = useRobotTypeStore();
 const loadData = async ()=>{
    const result = await robotSquareListService(robotTypeStore.robotType);
    searchResults.value = result.data;
-  console.log(JSON.stringify(searchResults.value))
 }
 loadData()
 const rightTitleStore = useRightTitleStore();

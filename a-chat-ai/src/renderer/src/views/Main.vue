@@ -1,8 +1,8 @@
 <script setup>
-import {ref} from "vue";
+import {onMounted, ref, watch} from "vue";
 import dynamicImageUrl from '../assets/img/background_main.jpg'
-import router from "../router";
 import WinOp from "../components/WinOp.vue";
+import {useRoute, useRouter} from "vue-router";
 
 
 const menuList = ref(
@@ -29,18 +29,52 @@ const menuList = ref(
     }
   ]
 )
+const routed = useRoute()
+const routerd = useRouter()
 const currentMenu = ref(menuList.value[0]);
 const changeMenu=  async (item)=>{
   currentMenu.value = item
-  router.push(item.path)
+  routerd.push(item.path)
   await preApi.setSessionSelect();
 }
 const componentRef = ref()
 
+const isLoading = ref(false)
+const loadingGif = ref("../src/assets/img/loading.gif")
+const redirect = async()=>{
+  isLoading.value = true
+  try{
+    console.log(routed.query)
+    if ( Object.keys(routed.query).length !== 0&&routed.query !== null){
+      console.log("SUCCESSSUCCESSSUCCESSSUCCESSSUCCESSSUCCESSSUCCESSSUCCESSSUCCESSSUCCESSSUCCESSSUCCESS")
+      currentMenu.value = menuList.value[0]
+      await routerd.push({path:"/main/chat",query:routed.query})
+    }else{
+      await routerd.push({path:"/main/chat",query:{}})
+    }
+  }finally {
+    isLoading.value = false
+  }
+}
+onMounted(() => {
+  redirect();
+});
+
+// 监听路由的 query 参数变化
+watch(() => routed.query.sessionId, (newSessionId) => {
+  console.log(newSessionId)
+  console.log(routed.query.sessionId)
+  if(newSessionId!==undefined&&newSessionId!==""&&newSessionId!==null){
+    redirect();
+  }
+});
 </script>
 <template>
 
   <div class="main">
+    <div v-if="isLoading" class="loading-overlay">
+      <el-image fit="cover" :src="loadingGif" alt="Loading..." />
+    </div>
     <div class="left-sider">
       <div></div>
       <div class="menu-list">
@@ -87,15 +121,36 @@ const componentRef = ref()
 </template>
 
 <style scoped>
+.loading-overlay {
+  border-radius: 15px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999; /* 确保在最上层 */
+  pointer-events: auto; /* 允许 pointer-events */
+}
+
+.loading-overlay img {
+  max-width: 700px; /* 适当限制加载动画的大小 */
+  max-height: 800px;
+}
 .bg{
   position: fixed;
   width: 100%;
   height: 100%;
+  border-radius: 15px;
   overflow: hidden;
   z-index: -100;
 }
 .bg::before{
   content: "";
+  border-radius: 15px;
   position: absolute;
   width: 100%;
   height: 100%;
@@ -107,6 +162,7 @@ const componentRef = ref()
 }
 .bgImage{
   position: absolute;
+  border-radius: 15px;
   top: 50%;
   left: 50%;
   min-width: 100%;
@@ -123,10 +179,10 @@ const componentRef = ref()
 .main{
   display: flex;
   overflow: hidden;
-  border-radius: 0 3px 3px 0;
+  border-radius: 15px;
   .left-sider{
     width:55px;
-    background: linear-gradient(45deg, rgb(31, 46, 75), rgb(73, 71, 54), rgb(61, 57, 87));
+    background: black;
     text-align: center;
     display: flex;
     flex-direction: column;
@@ -172,25 +228,22 @@ const componentRef = ref()
   cursor: pointer;
 }
 
-/* 悬停时背景颜色变为紫色 */
+
 .popover-user-panel:hover {
-  background-color: #571c86; /* 紫色 */
+  background-color: #343042;
 }
 
-/* 点击时背景颜色变为深紫色 */
-.popover-user-panel:active {
-  background-color: #460a6e; /* 深紫色 */
-}
-
-/* 当前激活的菜单项 */
 .popover-user-panel.active {
-  background-color: #30074d; /* 选中时的颜色 */
-  transform: scale(1.2); /* 动画：点击时放大 */
+  margin-left: 1px;
+  transform: scale(1.1);
+  background: #2a2a38;
+  border-left: 4px solid #ae99ff;
 }
 
-/* 动画效果：背景颜色和缩放效果 */
-.popover-user-panel.active:hover {
-  background-color: #4e1a7c; /* 悬停时继续保持紫色 */
+.popover-user-panel:hover.active {
+  background-color: #343042;
+  border-left: 4px solid #61538f;
 }
+
 
 </style>

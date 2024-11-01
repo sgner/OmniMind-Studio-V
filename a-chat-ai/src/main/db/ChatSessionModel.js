@@ -47,8 +47,8 @@ const updateChatSession = (sessionInfo)=>{
        userId: store.getUserId(),
        robotId: sessionInfo.robotId,
      }
-     console.log(JSON.stringify(paramData))
-     console.log(JSON.stringify(sessionInfo))
+     // console.log(JSON.stringify(paramData))
+     // console.log(JSON.stringify(sessionInfo))
      const updateInfo = Object.assign({},sessionInfo);
      updateInfo.userId = null;
      updateInfo.robotId = null;
@@ -62,7 +62,7 @@ const addChatSession = (sessionInfo)=>{
 
 const selectChatSessionList = async ()=>{
     let sql = "select * from session where user_id = ? and status = 1"
-    console.log(store.getUserId())
+    // console.log(store.getUserId())
     return await queryAll(sql,[store.getUserId()])
 }
 
@@ -87,8 +87,8 @@ const updateSessionInfo4Message = (currentSessionId,{sessionId,robotName,lastMes
   if(currentSessionId !== sessionId){
      sql += ",no_read_count = no_read_count+1 "
   }
-   sql += "where user_id = ? and robot_id = ? "
-    params.push(store.getUserId(),robotId)
+   sql += "where session_id = ?"
+    params.push(sessionId)
     return run(sql,params)
 }
 export {
@@ -97,5 +97,6 @@ export {
   updateChatSession,
   selectChatSessionList,
   readAll,
-  updateSessionInfo4Message
+  updateSessionInfo4Message,
+  addChatSession
 }

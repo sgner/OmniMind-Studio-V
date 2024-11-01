@@ -9,6 +9,7 @@ import SubscribeRobot from "./SubscribeRobot.vue";
 import {useRobotTypeStore} from "../../stores/RobotType";
 import {useRobotIdStore} from "../../stores/RobotId";
 import {useRightTitleStore} from "../../stores/RightTitle";
+import {createSessionService} from "../../api/UserService";
 const searchKey = ref('');
 const collapsedStore = useCollapsedStore();
 const isCollapsed = computed(() => collapsedStore.collapse);
@@ -114,7 +115,7 @@ watch(()=>rightTitleStore.rightTitle,(title)=>{
         rightTitle.value = title;
 })
 const activePath = ref('')
-
+const activePartId = ref('')
 watch(
   () => router.currentRoute.value.path,
   (newPath) => {
@@ -161,11 +162,19 @@ loadRobot()
 const showOverlay = ref(false);
 const viewDetails = (robotId,robotName)=>{
    const robotIdStore = useRobotIdStore();
-   console.log(robotName);
+   // console.log(robotName);
    rightTitleStore.setRightTitle(robotName)
    rightTitle.value = rightTitleStore.rightTitle;
    robotIdStore.setRobotId(robotId)
+   activePartId.value = robotId
    router.push("/robot/detail")
+}
+
+const createSession =async (data)=>{
+  const result = await createSessionService(data)
+  if(result.data !== null){
+    await router.push({path:"/main",query:result.data})
+  }
 }
 </script>
 
@@ -221,20 +230,20 @@ const viewDetails = (robotId,robotName)=>{
                       placement="right"
                       v-if="collapsedStore.collapse"
                     >
-                    <SubscribeRobot class="part-item-part"
+                    <SubscribeRobot :class="[robot.id ===activePartId?'active':'','part-item-part']"
                                     :avatar="robot.avatar"
                                     :name="robot.name"
-                                    :status="robot.status" @click="clickToDetail"></SubscribeRobot></el-tooltip>
+                                    :status="robot.status" @click="viewDetails(robot.id,robot.name)"></SubscribeRobot></el-tooltip>
                     <SubscribeRobot v-else
-                                    class="part-item-part"
+                                    :class="[robot.id ===activePartId?'active':'','part-item-part']"
                                     :avatar="robot.avatar"
                                     :name="robot.name"
                                     :status="robot.status"
-                                    @click="clickToDetail"></SubscribeRobot>
+                                    @click="viewDetails(robot.id,robot.name)"></SubscribeRobot>
                     <transition name="slide">
                       <div v-if="robot.hovered && !collapsedStore.collapse" class="overlay">
                         <el-button style="margin-left: 30px" type="primary" @click="viewDetails(robot.id,robot.name)">查看详情</el-button>
-                        <el-button type="primary" @click="createDialogue">创建对话</el-button>
+                        <el-button type="primary" @click="createSession(robot.id)">创建对话</el-button>
                       </div>
                     </transition>
                   </div>
@@ -376,11 +385,11 @@ const viewDetails = (robotId,robotName)=>{
 .part-item-part:hover{
   cursor: pointer;
   width: 90%;
-  background: #62568a;
+  background: #545454;
 }
 .part-item:hover {
   cursor: pointer;
-  background: #7e64de;
+  background: #595959;
 }
 
 .iconfont {
@@ -412,11 +421,11 @@ const viewDetails = (robotId,robotName)=>{
 }
 
 .active {
-  background: #8071a9;
+  background: #4f4f4f;
 }
 
 .active:hover {
-  background: #6b5b9a;
+  background: #797979;
 }
 
 .title-panel {

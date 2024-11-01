@@ -4,6 +4,7 @@ import Message from '../utils/Message';
 import Api from '../utils/Api';
 import { useTokenStore } from "../stores/token";
 import { ref } from "vue";
+import message from "../utils/Message";
 let loading = null;
 const instance = axios.create({
   withCredentials: true,
@@ -62,22 +63,20 @@ instance.interceptors.response.use(
       return Promise.reject({ showError: true, msg: "登录超时" });
     } else {
       // 其他错误
-      Message.error(responseData.msg ? responseData.msg : "请求失败");
       return Promise.reject({ showError: showError, msg: responseData.msg });
     }
   },
   (err) => {
     console.log(err)
     if (loading) loading.close();
-    if (err.response.code === 401) {
-      Message.error("登录状态异常");
+    if (err.response.status===401) {
+      message.error("登录状态异常")
       return Promise.reject({ showError: true, msg: "登录状态异常" });
     }else if(err.code === "ECONNABORTED"){
-      Message.error("请求超时")
       return Promise.reject({ type: 'TIMEOUT', showError: true, msg: "请求超时" });
     }
-    Message.error("网络异常");
-    return Promise.reject({ showError: true, msg: "网络异常" });
+    message.error("网络异常")
+    return Promise.reject();
   }
 );
 

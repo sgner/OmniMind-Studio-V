@@ -66,7 +66,7 @@ const initTableColumnsMap = async () => {
 const queryAll = (sql, params) => {
   return new Promise((resolve, reject) => {
     const stmt  = db.prepare(sql)
-     console.log(`执行的sql:${sql},params:${params}`);
+     // console.log(`执行的sql:${sql},params:${params}`);
     stmt.all(params, (err, rows) => {
       if (err) {
         reject(err);
@@ -100,7 +100,7 @@ const queryOne = (sql, params) => {
         reject(err);
       } else {
         resolve();
-        console.log(`执行的sql:${sql},params:${params}`);
+        // console.log(`执行的sql:${sql},params:${params}`);
       }
     });
     stmt.finalize();
@@ -110,7 +110,7 @@ const queryOne = (sql, params) => {
 const run = (sql, params) => {
   return new Promise((resolve, reject) => {
     const stmt = db.prepare(sql);
-    console.log(`执行的sql:${sql}`);
+    // console.log(`执行的sql:${sql}`);
     stmt.run(params, function(err) {
       if (err) {
         console.error(`执行的sql: ${sql}, params: ${params}, 执行失败: ${err}`);
@@ -136,7 +136,7 @@ const insert = (sqlPrefix, tableName, data) => {
   }
   const preper = "?".repeat(dbColumns.length).split("").join(",");
   const sql = `${sqlPrefix} ${tableName}(${dbColumns.join(",")}) VALUES(${preper})`;
-  console.log(`执行的sql:${sql},params:${params}`);
+  // console.log(`执行的sql:${sql},params:${params}`);
   return run(sql, params);
 }
 const update = (tableName, data, paramData) => {
@@ -157,7 +157,7 @@ const update = (tableName, data, paramData) => {
     }
   }
   const sql = `UPDATE ${tableName} SET ${dbColumns.join(",")} ${whereColumns.length > 0 ? 'WHERE' : ''} ${whereColumns.join(" AND ")}`;
-  console.log(`执行的sql:${sql},params:${params}`);
+  // console.log(`执行的sql:${sql},params:${params}`);
   return run(sql, params);
 }
 const insertOrReplace = (tableName, data) => insert("INSERT OR REPLACE INTO", tableName, data);

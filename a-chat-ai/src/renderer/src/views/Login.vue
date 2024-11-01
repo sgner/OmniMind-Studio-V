@@ -44,9 +44,9 @@ const registerFormClear = () => {
   validateRegisterFailed.value = false
 }
 import {useTokenStore} from "../stores/token";
-import router from "../router";
 import WinOp from "../components/WinOp.vue"; useTokenStore()
 import {useUserInfoStore} from "../stores/UserInfo";
+const router = useRouter()
 const login = async () => {
   const q1 = validateLogin('验证码',loginForm.value.checkCode)
   const q2 =  validateLogin('密码',loginForm.value.password)
@@ -62,7 +62,7 @@ const login = async () => {
       tokenStore.setToken(loginResult.data.jwt)
       userInfoStore.userInfo = {userId:loginResult.data.userId,userName:loginResult.data.userName};
       validateFailed.value =  false
-      await router.push("/main")
+      await router.push({path:"/main",query:{}})
       preApi.routerToMain(null)
       preApi.successLogin(loginResult.data)
     }catch (e){
@@ -180,6 +180,7 @@ const validateRegister = (type,value) => {
     return false;
 }
 import Api from '../utils/Api'
+import {useRouter} from "vue-router";
 const init = ()=>{
    preApi.setLocalStore({key:'devWsDomain',value:Api.devWsDomain})
    preApi.setLocalStore({key:'prodDomain',value:Api.prodDomain})

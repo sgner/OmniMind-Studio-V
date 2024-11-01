@@ -4,34 +4,40 @@ import {computed, onBeforeUnmount, onMounted, ref, watch} from "vue";
   import {robotDetailService,commentListService} from "../../api/RobotService";
   import {likeService} from "../../api/UserService";
   import {commentService} from "../../api/UserService";
-
-import {ElMessage} from "element-plus";
+import {createSessionService} from "../../api/UserService";
 const robotIdStore = useRobotIdStore();
   const robot= ref({})
   const commentList = ref([])
   const currentPage = ref(1);
   const subscribe = ref(false)
+const commentSuccess = ref(false)
+const goTop = ()=>{
+   const commentItem =  document.querySelectorAll('.infinite-list-item')
+   if(commentItem.length>0){
+     setTimeout(() => {
+       commentItem[0].scrollIntoView({behavior: "smooth"})
+     },100)
+   }
+}
+
   const loadRobotDetail = async ()=>{
        const result = await robotDetailService({
            robotId: robotIdStore.robotId,
            type: "1",
-           pageNo: 1
+           pageNo: 1,
        });
        robot.value = result.data.robot;
        commentList.value = result.data.comments.list;
-       console.log(JSON.stringify(result.data))
        subscribe.value = result.data.subscribed;
   }
-  const getComment = async ()=>{
+  const getComment = async (tabName)=>{
          const result = await commentListService(
            {
               robotId: robotIdStore.robotId,
-               type: activeName.value,
+               type: tabName,
                pageNo: 1
            }
          )
-    console.log(activeName.value)
-        console.log(JSON.stringify(result.data))
          commentList.value = result.data.list;
   }
   loadRobotDetail();
@@ -40,10 +46,13 @@ const robotIdStore = useRobotIdStore();
        loadRobotDetail();
   })
 const activeName = ref("1")
+const showInput = ref(true)
 const handleClick = async (tab, event) => {
+     currentPage.value = 1;
      const tabName = tab.props.name;
+     showInput.value = tabName !== "4";
      // TODO 获取评论列表
-     await getComment()
+     await getComment(tabName)
      // comments.value = commentList.value.filter(comment => comment.type == tabName)
 }
 const inputBg = {
@@ -64,14 +73,30 @@ const sendMessage = async (e)=>{
   const result = await commentService({
         robotId: robotIdStore.robotId,
         content: comment.value,
-        type: activeName.value
+        type: activeName.value,
+        pageNo: 1
   });
-  const commentListResult = result.data.list;
+  currentPage.value = 1;
+  comment.value = "";
+  commentList.value = result.data.list;
+  goTop();
+  console.log()
 }
 const showSendMsgPopover = ref(false)
 
 const clickLike = async (comment)=>{
+  console.log(JSON.stringify(comment))
   const result = await likeService(comment)
+  if(result.data.success){
+      const find = commentList.value.find(commentResult=> commentResult.id === comment.id);
+      if(result.data.like){
+        find.isLike  = true;
+        find.like +=1;
+      }else {
+         find.isLike  = false;
+         find.like -=1;
+      }
+  }
   console.log(JSON.stringify(result))
 }
 const getPlaceholder=()=>{
@@ -84,19 +109,20 @@ const getPlaceholder=()=>{
              return "请输入意见"
       }
 }
+const showEnd = ref(false)
 const loadComment = async ()=>{
   currentPage.value +=1;
   const result = await commentListService(
     {
       robotId: robotIdStore.robotId,
       type: activeName.value,
-      pageNo: currentPage.value
+      pageNo: currentPage.value,
     }
   )
   console.log(currentPage.value)
   console.log("resultDATA: "+JSON.stringify(result.data))
-  if(currentPage.value === result.data.pages+1){
-    ElMessage.warning("没有更多评论了")
+  if(commentList.value.length === result.data.total){
+    showEnd.value = true;
     currentPage.value -=1;
     return;
   }
@@ -107,36 +133,42 @@ const loadComment = async ()=>{
 }
 import { nextTick } from 'vue';
 import Utils from "../../utils/Utils";
+import {useRoute, useRouter} from "vue-router";
+import {ElLoading} from "element-plus";
 const topContentHeight = ref(450);
 const listHeight = ref();
 onMounted(async () => {
-  await nextTick(); // 确保 DOM 更新
+  await updateListHeight(); // 更新列表高度
+});
+const updateListHeight = async () => {
+  await nextTick();
+  const otherHeight = 115;
   const topHeaderContent = document.querySelector('.header');
   const topHContent = document.querySelector('.top-h');
-  if (topHeaderContent&&topHContent) {
-    topContentHeight.value = topHeaderContent.offsetHeight+topHContent.offsetHeight; // 获取顶部内容高度
-  }
-  updateListHeight(); // 更新列表高度
-});
-
-const updateListHeight = () => {
-  listHeight.value = window.innerHeight - (topContentHeight.value + 195);
+  topContentHeight.value = topHeaderContent.offsetHeight+topHContent.offsetHeight;
+  topContentHeight.value = topContentHeight.value<395? 395:topContentHeight.value;
+  listHeight.value = window.innerHeight - (topContentHeight.value + otherHeight);
 };
-
-
 window.addEventListener('resize', updateListHeight);
 onBeforeUnmount(() => {
   window.removeEventListener('resize', updateListHeight);
 });
 
-
+const router = useRouter();
+const route = useRoute()
+const createSession =async (data)=>{
+   const result = await createSessionService(data)
+   if(result.data !== null){
+        await router.push({path:"/main",query:result.data})
+     }
+}
 </script>
 
 <template>
  <el-header style="height: auto" class="header">
    <el-row style="background: white;border-radius: 15px;border: 3px slateblue solid">
       <el-col :span="4" :offset="6">
-         <el-image>
+         <el-image class="header-h">
                <template #error>
                    <el-image fit="cover" src="../../src/assets/img/cry.png"></el-image>
                </template>
@@ -151,7 +183,7 @@ onBeforeUnmount(() => {
            </el-row>
            <el-row style="margin-top: 20px">
                <el-col :span="4">
-                 <el-button class="bottom_style" plain type="primary" v-if="subscribe">创建对话</el-button>
+                 <el-button class="bottom_style" plain type="primary" v-if="subscribe" @click="createSession(robot.id)">创建对话</el-button>
                  <el-button class="bottom_style" v-else type="primary" plain>试用</el-button>
                </el-col>
                 <el-col :span="4" :offset="2">
@@ -204,7 +236,7 @@ onBeforeUnmount(() => {
                 用户建议
               </template>
             </el-tab-pane>
-            <el-tab-pane label="开发者说" name=“4”>
+            <el-tab-pane label="开发者说" name="4">
                <template #label>
                  <svg
                    style="overflow: hidden; width: 2em; height: 2em;"
@@ -217,7 +249,7 @@ onBeforeUnmount(() => {
             </el-tab-pane>
           </el-tabs>
           <el-row>
-            <div class="input_area" :style="currentInputStyle">
+            <div class="input_area" :style="currentInputStyle" v-if="showInput">
               <el-row justify="space-between">
                 <el-col :span="22">
                   <el-input :placeholder="getPlaceholder()" @keydown.enter="sendMessage" type="textarea" resize="none" rows="3" v-model="comment">
@@ -260,46 +292,64 @@ onBeforeUnmount(() => {
     </div>
       <el-row>
         <el-col :style="{ height: listHeight + 'px' }" v-infinite-scroll="loadComment" class="infinite-list" v-if="commentList.length > 0" style="background: #101010;border-radius: 15px">
-            <el-row v-for="comment in commentList" :key="comment" class="infinite-list-item" style="padding-top: 10px">
-              <el-col :span="2" :offset="1" >
-                <el-row>
-                  <el-avatar :src="comment.avatar">
-                    <template #default>
-                      <div style="width: 5.5em">
-                        <el-avatar :size="45" wi fit="cover" src="../../src/assets/img/avatar14.svg"></el-avatar>
-                      </div>
-                    </template>
-                  </el-avatar>
-                </el-row>
-              </el-col>
-              <el-col :span="19" style="padding-top:10px">
-                <el-row>
-                  <el-text type="primary" size="large" line-clamp="2">{{comment.username}}</el-text>
-                </el-row>
-                <el-row style="margin-top: 10px">
-                  <el-text style="color: white;font-size: 16px">{{comment.content}}</el-text>
-                </el-row>
-                <el-row style="margin-top: 10px">
+              <el-row v-for="(comment,index) in commentList" ref="specificRow" :key="index" class="infinite-list-item" style="padding-top: 10px">
+                <el-col :span="2" :offset="1" >
+                  <el-row>
+                    <el-avatar :src="comment.avatar">
+                      <template #default>
+                        <div style="width: 5.5em">
+                          <el-avatar :size="45" wi fit="cover" src="../../src/assets/img/avatar14.svg"></el-avatar>
+                        </div>
+                      </template>
+                    </el-avatar>
+                  </el-row>
+                </el-col>
+                <el-col :span="19" style="padding-top:10px">
+                  <el-row>
+                    <el-text type="primary" size="large" line-clamp="2">{{comment.username}}</el-text>
+                  </el-row>
+                  <el-row style="margin-top: 10px">
+                    <el-text style="color: white;font-size: 16px">{{comment.content}}</el-text>
+                  </el-row>
+                  <el-row style="margin-top: 10px">
                     <el-text style="color: white;font-size: 12px">{{Utils.formatTimeArray(comment.createTime)}}</el-text>
-                </el-row>
-              </el-col>
-              <el-col :span="2" style="padding-top: 3.5em;">
-                <el-button type="text" @click="clickLike(comment)">
-                  <svg
-                    style="overflow: hidden; width: 2em; height: 2em;"
-                    aria-hidden="true"
-                  >
-                    <use :xlink:href="`#icon-tubiaozhizuomoban`"></use>
-                  </svg>
-                </el-button>
-                <span style="color: #fb7373">{{comment.like}}</span>
-              </el-col>
-              <el-divider style="border-color: #343434"></el-divider>
-            </el-row>
+                  </el-row>
+                </el-col>
+                <el-col :span="2" style="padding-top: 3.5em;">
+                  <el-button type="text" @click="clickLike(comment)">
+                    <svg
+                      style="overflow: hidden; width: 2em; height: 2em;"
+                      aria-hidden="true"
+                      v-if="comment.like"
+                    >
+                      <use :xlink:href="`#icon-tubiaozhizuomoban`"></use>
+                    </svg>
+                    <svg
+                      style="overflow: hidden; width: 2em; height: 2em;"
+                      aria-hidden="true"
+                      v-else
+                    >
+                      <use :xlink:href="`#icon-dianzan`"></use>
+                    </svg>
+                  </el-button>
+                  <span style="color: #fb7373">{{comment.like}}</span>
+                </el-col>
+                <el-divider style="border-color: #343434"></el-divider>
+              </el-row>
+              <el-row v-if="showEnd" justify="center">
+                 <el-col :span="6" style="padding-bottom: 15px">
+                   <el-text style="color: #c2c2c2;font-size: 15px" >没有更多了（づ￣3￣）づ╭❤～</el-text>
+                 </el-col>
+              </el-row>
         </el-col>
        <el-col v-else>
            <el-empty>
-              <template #default><span style="color: white">写下第一个评论吧</span></template>
+              <template #image>
+                <el-image src="../../src/assets/img/icon-tree.png"></el-image>
+              </template>
+             <template #description>
+                <span>这里好像有点空旷</span>
+             </template>
            </el-empty>
        </el-col>
      </el-row>
@@ -307,11 +357,25 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+.header-h {
+  width: 13.5em; /* 固定宽度 */
+  height: 13.5em; /* 固定高度 */
+  overflow: hidden; /* 防止内容溢出 */
+}
+
+.custom-message{
+  position: fixed;
+  z-index: 9999; /* 确保在其他元素之上 */
+}
 .infinite-list { /* 100px 是你顶部内容的高度，20px 是你希望的底部间距 */
   padding: 0;
   margin: 0;
   list-style: none;
-  overflow-y: auto; /* 如果内容超出高度，添加滚动条 */
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.infinite-list::-webkit-scrollbar {
+  display: none;
 }
 .infinite-list .infinite-list-item {
   display: flex;

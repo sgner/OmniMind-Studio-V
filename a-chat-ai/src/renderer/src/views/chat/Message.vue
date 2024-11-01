@@ -462,6 +462,7 @@ const handleResultSrc = (file) => {
 
   }
   .send-panel{
+     margin-bottom: -8px;
      background: #211f1f;
      border-top: 1px solid #ddd;
      position: relative; /* 让子元素绝对定位不影响布局 */

@@ -28,7 +28,7 @@ const preApi = {
   },
   "receiveMessage": (callback) => {
       ipcRenderer.on("receiveMessage", async (e, data) => {
-      console.log("收到消息：" + data.messageType);
+      // console.log("收到消息：" + data.messageType);
 
       if (data.messageType === 0) {
         try {
@@ -56,6 +56,9 @@ const preApi = {
     },
   'setSessionSelect':async (robotId,sessionId)=>{
        await ipcRenderer.send("setSessionSelect",{robotId,sessionId})
+  },
+  'loadChatSession': async ()=>{
+      return  await loadChatSession()
   }
 }
 
