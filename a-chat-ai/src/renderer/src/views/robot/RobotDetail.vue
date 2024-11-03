@@ -78,6 +78,8 @@ const sendMessage = async (e)=>{
   });
   currentPage.value = 1;
   comment.value = "";
+  console.log(JSON.stringify(result.data.list[0].createTime))
+  console.log(JSON.stringify(Utils.formatTimeArray(result.data.list[0].createTime)))
   commentList.value = result.data.list;
   goTop();
   console.log()

@@ -18,8 +18,12 @@ const formatDate = (timestamp) => {
     return timestampTime.format('YYYY/MM/DD'); // 更早的日期，返回完整日期格式
   }
 };
-const formatTimeArray = (timeArray) =>{
-  const date = new Date(...timeArray);
+const formatTimeArray = (timeArray) => {
+  // 将月份减 1，以适应 JavaScript Date 对象的 0-11 规则
+  const adjustedTimeArray = [...timeArray];
+  adjustedTimeArray[1] = timeArray[1] - 1; // 将月份减 1
+
+  const date = new Date(...adjustedTimeArray.slice(0,6));
 
   const options = {
     year: 'numeric',
@@ -32,7 +36,8 @@ const formatTimeArray = (timeArray) =>{
   };
 
   return date.toLocaleString('zh-CN', options);
-}
+};
+
 export default {
   isEmpty,
   formatDate,
