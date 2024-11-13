@@ -37,8 +37,9 @@ const preApi = {
         } catch (error) {
           callback(error, null);  // 如果发生错误，传递错误信息
         }
-      } else {
-        callback(null, data);  // 如果是其他类型的消息，也通过回调返回
+      } else if(data.messageType === 15){
+        const session = await loadChatSession();
+        callback(null, session,data);  // 如果是其他类型的消息，也通过回调返回
       }
     });
   },

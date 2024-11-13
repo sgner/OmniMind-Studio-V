@@ -7,7 +7,7 @@ const login_height = 440;
 import {changeWindowSize, loginSuccess, winTitleOp, setLocalStore,setSessionSelect} from "./ipc";
 import store from './store'
 const register_height =530;
-const main_width = 1324;
+const main_width = 1492;
 const main_height = 868;
 import {selectChatSessionList, updateChatSession, updateSessionInfo4Message} from "./db/ChatSessionModel";
 import {queryAll, update} from "./db/ADB";

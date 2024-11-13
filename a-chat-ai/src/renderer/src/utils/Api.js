@@ -1,5 +1,6 @@
 const api = {
   createSession:"/user/new/session",
+  applyRobot:"/user/subscribe",
   like:"/user/comment/like",
   comments:"/robot/comments",
   comment:"/user/comment",

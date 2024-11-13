@@ -3,6 +3,7 @@ import layout from '@/components/layout.vue'
 import {useCollapsedStore} from "../../stores/Collapsed";
 import {computed, onMounted, ref, watch} from "vue";
 import chatSession from "@/views/chat/ChatSession.vue"
+import SunoSesion from '../audio/suno/SunoSession.vue'
 import {useChatSessionStore} from "../../stores/ChatSession";
 import ContextMenu from "@imengyu/vue3-context-menu";
 import "@imengyu/vue3-context-menu/lib/vue3-context-menu.css"
@@ -12,8 +13,10 @@ import ChatMessage from "./ChatMessage.vue";
 import {loadUploadedFile} from "../../api/ChatSessionMessageService";
 import {updateSessionNoReadCountService} from "../../api/UpdateService";
 import {useUploadDataStore} from "../../stores/UploadData";
-import {ElLoading, ElMessage} from "element-plus";
+import {ElMessage, ElNotification} from "element-plus";
 import {useRoute, useRouter} from "vue-router";
+import Suno from "../audio/suno/Suno.vue";
+import message from "../../utils/Message";
 const chatSessionStore  = useChatSessionStore();
 const collapsedStore = useCollapsedStore();
 const uploadDataStore = useUploadDataStore()
@@ -22,11 +25,12 @@ const chatMessageStore = useChatMessageStore();
 const cuSession = ref([])
 onMounted(() => {
   // 组件挂载时，开始监听消息
-  preApi.receiveMessage((error, session) => {
+  preApi.receiveMessage((error, session,data) => {
     if (error) {
       console.error("消息接收失败：", error);
-    } else {
+    } else if(data === null || data === undefined){
       console.log("接收到消息：", session);
+      sortChatSession(session);
       cuSession.value = session;
       chatSessionStore.setChatSession(session);
       messageList.value = [];
@@ -38,15 +42,22 @@ onMounted(() => {
       goBottom();
       const lastMessage = chatMessageStore.message[chatMessageStore.message.length - 1];
       if(currentChatSession.value.sessionId !== lastMessage.sessionId){
-             //TODO 未读消息
+        //TODO 未读消息
       }
+    }else if(data.messageType === 15){
+      cuSession.value = session;
+      chatSessionStore.setChatSession(session)
+      // currentChatSession.value = data.session;
+       message.success("你已经成功订阅，现在为您跳转");
     }
   });
 });
 
 onMounted(async ()=>{
   const sessionList = await preApi.loadChatSession();
+  sortChatSession(sessionList);
   chatSessionStore.setChatSession(sessionList);
+  console.log(JSON.stringify(sessionList))
 })
 const setTop = async (id,topType)=>{
   const session = await preApi.setTop(id,topType);
@@ -54,79 +65,85 @@ const setTop = async (id,topType)=>{
   chatSessionStore.chatSession = session;
 }
 const delSession = async (id)=>{
-   chatSessionStore.chatSession = await preApi.delSession(id);
+  chatSessionStore.chatSession = await preApi.delSession(id);
 }
 
 const onContextmenu = (data,e)=>{
-   ContextMenu.showContextMenu({
-     x:e.x,
-     y:e.y,
-     items:[{
-         label: data.topType === 0 ?"置顶":"取消置顶",
-         onClick:()=>{
-             setTop(data.robotId,data.topType === 0 ?1:0)
-         }
-     }, {
-        label: '删除聊天',
-         onClick:()=>{
-             delSession(data.robotId)
-          }
-       }
-     ]
-   })
+  ContextMenu.showContextMenu({
+    x:e.x,
+    y:e.y,
+    items:[{
+      label: data.topType === 0 ?"置顶":"取消置顶",
+      onClick:()=>{
+        setTop(data.robotId,data.topType === 0 ?1:0)
+      }
+    }, {
+      label: '删除聊天',
+      onClick:()=>{
+        delSession(data.robotId)
+      }
+    }
+    ]
+  })
 }
 
 const currentChatSession = ref({})
 const messageList = ref([]);
 const messageCountInfo = {
-    totalPage: 0,
-    pageNo: 0,
-    maxMessageId: null,
-    noData: false
+  totalPage: 0,
+  pageNo: 0,
+  maxMessageId: null,
+  noData: false
 }
+const click = ref(false)
 const chatSessionClickHandler = async (item)=>{
-   currentChatSession.value = item;
-   messageList.value = [];
-   messageCountInfo.pageNo = 0;
-   messageCountInfo.totalPage = 1;
-   messageCountInfo.noData = false;
-   messageCountInfo.maxMessageId = null;
-   await loadChatMessage();
-   goBottom();
-  const result = await loadUploadedFile(currentChatSession.value.sessionId)
-  const uploadData = result.data;
-  const storeUpload = uploadDataStore.data[currentChatSession.value.sessionId]
-  if((uploadData === null || uploadData.length === 0)&& storeUpload !== null&& storeUpload.length !== 0){
-       uploadDataStore.removeData(currentChatSession.value.sessionId)
-       ElMessage.warning("该会话上传的文件已经失效")
-  }else if(uploadData.length >= 0){
-        uploadDataStore.setData(currentChatSession.value.sessionId,uploadData)
+  click.value = true
+  currentChatSession.value = item;
+  if(item.robotType !== 6){
+    messageList.value = [];
+    messageCountInfo.pageNo = 0;
+    messageCountInfo.totalPage = 1;
+    messageCountInfo.noData = false;
+    messageCountInfo.maxMessageId = null;
+    await loadChatMessage();
+    goBottom();
+    const result = await loadUploadedFile(currentChatSession.value.sessionId)
+    const uploadData = result.data;
+    const storeUpload = uploadDataStore.data[currentChatSession.value.sessionId]
+    if((uploadData === null || uploadData.length === 0)&& storeUpload !== null&& storeUpload.length !== 0){
+      uploadDataStore.removeData(currentChatSession.value.sessionId)
+      ElMessage.warning("该会话上传的文件已经失效")
+    }else if(uploadData.length >= 0){
+      uploadDataStore.setData(currentChatSession.value.sessionId,uploadData)
+    }
+    await preApi.setSessionSelect(currentChatSession.value.robotId,currentChatSession.value.sessionId)
+    await updateSessionNoReadCountService(currentChatSession.value.sessionId);
+  }else{
+    await preApi.setSessionSelect(currentChatSession.value.robotId,currentChatSession.value.sessionId)
   }
-   await preApi.setSessionSelect(currentChatSession.value.robotId,currentChatSession.value.sessionId)
-   await updateSessionNoReadCountService(currentChatSession.value.sessionId);
 }
 const loadChatMessage = async () =>{
-     if(Object.keys(currentChatSession.value).length===0|| currentChatSession.value === null || currentChatSession.value === undefined){
-         return;
-     }
-     if(messageCountInfo.noData){
-        return;
-     }
-     messageCountInfo.pageNo++;
-     const message = await preApi.loadChatMessage(currentChatSession.value.sessionId,messageCountInfo.pageNo,messageCountInfo.maxMessageId)
-     if(message.pageNo === message.totalPage){
-         messageCountInfo.noData = true;
-     }
-     message.messageList.sort((a,b)=>{
-          return a.question.id - b.question.id
-     })
-     messageList.value = message.messageList.concat(messageList.value)
-     messageCountInfo.totalPage = message.totalPage;
-     messageCountInfo.pageNo = message.pageNo;
-     if(messageCountInfo.pageNo === 1){
-       messageCountInfo.maxMessageId = message.messageList.length > 0 ? message.messageList[message.messageList.length-1].question.id : null;
-     }
-     chatMessageStore.setChatMessage(messageList.value);
+  if(Object.keys(currentChatSession.value).length===0|| currentChatSession.value === null || currentChatSession.value === undefined){
+    return;
+  }
+  if(messageCountInfo.noData){
+    return;
+  }
+  messageCountInfo.pageNo++;
+  const message = await preApi.loadChatMessage(currentChatSession.value.sessionId,messageCountInfo.pageNo,messageCountInfo.maxMessageId)
+  if(message.pageNo === message.totalPage){
+    messageCountInfo.noData = true;
+  }
+  message.messageList.sort((a,b)=>{
+    return a.question.id - b.question.id
+  })
+  messageList.value = message.messageList.concat(messageList.value)
+  messageCountInfo.totalPage = message.totalPage;
+  messageCountInfo.pageNo = message.pageNo;
+  if(messageCountInfo.pageNo === 1){
+    messageCountInfo.maxMessageId = message.messageList.length > 0 ? message.messageList[message.messageList.length-1].question.id : null;
+  }
+  chatMessageStore.setChatMessage(messageList.value);
 }
 const goBottom = () => {
   const items = document.querySelectorAll('.message-item');
@@ -138,27 +155,26 @@ const goBottom = () => {
 }
 
 const sortChatSession = (list)=>{
-     list.sort((a,b)=>{
-          const topTypeResult = b.topType-a.topType;
-          if (topTypeResult === 0){
-             return a.lastTime - b.lastTime;
-          }else{
-            return topTypeResult;
-          }
-     })
+  list.sort((a,b)=>{
+    const topTypeResult = b.topType-a.topType;
+    if (topTypeResult === 0){
+      return a.lastTime - b.lastTime;
+    }else{
+      return topTypeResult;
+    }
+  })
 }
 watch(() => chatMessageStore.message, (newMessages) => {
-    goBottom();
+  goBottom();
 }, { deep: true });
 const showGroupDetail = ()=>{
-   console.log("show group detail")
+  console.log("show group detail")
 }
 const router = useRouter();
 const route = useRoute();
 const createSession = async ()=>{
   if ( Object.keys(route.query).length !== 0&&route.query !== null){
-    console.log(route.query)
-    currentChatSession.value = route.query;
+    console.log("!!!!!!",JSON.stringify(route.query))
     console.log(JSON.stringify(currentChatSession.value))
     await chatSessionClickHandler(route.query);
   }
@@ -168,47 +184,51 @@ createSession();
 </script>
 
 <template>
-<layout>
-     <template #left-content>
-         <div class="drag-panel drag"></div>
-       <div class="top-search-wrapper">
-         <transition name="fade">
-           <div class="top-search" v-if="!isCollapsed">
-             <el-input clearable placeholder="搜索" v-model="searchKey">
-               <template #suffix>
-                 <span class="iconfont icon-search"></span>
-               </template>
-             </el-input>
-           </div>
-         </transition>
-       </div>
-       <div class="chat-session-list">
-         <template v-for="item in chatSessionStore.chatSession">
-            <chatSession :data="item" :currentSession="item.sessionId === currentChatSession.sessionId" @click="chatSessionClickHandler(item)" @contextmenu="onContextmenu(item,$event)"></chatSession>
-         </template>
-       </div>
-     </template>
-   <template #right-content>
-     <div class="title-panel drag">
-       <div class="title" v-if="Object.keys(currentChatSession).length>0">
-           <span>{{currentChatSession.robotName}}</span>
-           <span v-if="currentChatSession.robotType ===1">A-AI
+  <layout>
+    <template #left-content>
+      <div class="drag-panel drag"></div>
+      <div class="top-search-wrapper">
+        <transition name="fade">
+          <div class="top-search" v-if="!isCollapsed">
+            <el-input clearable placeholder="搜索" v-model="searchKey">
+              <template #suffix>
+                <span class="iconfont icon-search"></span>
+              </template>
+            </el-input>
+          </div>
+        </transition>
+      </div>
+      <div class="chat-session-list">
+        <template v-for="item in chatSessionStore.chatSession">
+          <chatSession v-if="item.robotType !== 6" :data="item" :currentSession="item.sessionId === currentChatSession.sessionId" @click="chatSessionClickHandler(item)" @contextmenu="onContextmenu(item,$event)"></chatSession>
+          <SunoSesion v-else-if="item.robotId === 'R7429603393684e66be1463430c753da5'" :data="item" :current-session="item.sessionId === currentChatSession.sessionId" @click="chatSessionClickHandler(item)" @contextmenu="onContextmenu(item,$event)"></SunoSesion>
+        </template>
+      </div>
+    </template>
+    <template #right-content>
+      <div class="title-panel drag" :style="{background: click ? '#000000' : 'transparent'}">
+        <div class="title" v-if="Object.keys(currentChatSession).length>0">
+          <span>{{currentChatSession.robotName}}</span>
+          <span v-if="currentChatSession.robotType ===1">A-AI
                ({{currentChatSession.robotNumber}})
            </span>
-       </div>
-     </div>
+        </div>
+      </div>
       <div class="iconfont icon-more no-drag" v-if="currentChatSession.robotType === 1" @click="showGroupDetail()">
       </div>
-      <div class="chat-panel" v-show="Object.keys(currentChatSession).length>0">
-            <div class="message-panel"  v-infinite-scroll="loadMessage" id="message-panel">
-                <div class="message-item" v-for="(data,index) in chatMessageStore.message" :id="'message' + data.question.id">
-                  <ChatMessage :data="data" :currentChatSession="currentChatSession"></ChatMessage>
-                </div>
-            </div>
+      <div class="chat-panel" v-show="Object.keys(currentChatSession).length>0 && currentChatSession.robotType != 6">
+        <div class="message-panel"  v-infinite-scroll="loadMessage" id="message-panel">
+          <div class="message-item" v-for="(data,index) in chatMessageStore.message" :id="'message' + data.question.id">
+            <ChatMessage :data="data" :currentChatSession="currentChatSession"></ChatMessage>
+          </div>
+        </div>
         <Message :currentChatSession="currentChatSession"></Message>
       </div>
-   </template>
-</layout>
+      <div class="suno-panel" v-if="currentChatSession.robotId === 'R7429603393684e66be1463430c753da5'">
+        <Suno></Suno>
+      </div>
+    </template>
+  </layout>
 </template>
 <style scoped>
 
@@ -217,6 +237,11 @@ createSession();
   display: flex;
   flex-direction: column;
   height: calc(100vh - 70px); /* 保证聊天面板占据除顶部栏之外的剩余高度 */
+}
+.suno-panel{
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* 保证聊天面板占据除顶部栏之外的剩余高度 */
 }
 /* 消息面板设置为可滚动 */
 .message-panel {
@@ -371,10 +396,6 @@ createSession();
   font-size: 16px;
   color: #7e64de;
   line-height: 30px;
-}
-
-.active {
-  background: #484456;
 }
 
 .active:hover {

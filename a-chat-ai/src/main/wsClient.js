@@ -71,6 +71,19 @@ const createWs = ()=>{
         // console.log("session",session)
         await addChatSession(session)
         await wSender.send("receiveMessage",{messageType: 0})
+        break;
+      case 15:
+        console.log("消息为15")
+        const session15  = message.extendData
+        if (session15 !== null){
+          session15.lastTime =new Date(session15.lastTime[0],session15.lastTime[1],session15.lastTime[2],session15.lastTime[3],session15.lastTime[4],session15.lastTime[5],Math.floor(session15.lastTime[6]/1000000)).getTime()
+          console.log("session15",JSON.stringify(session15))
+          await addChatSession(session15)
+          await wSender.send("receiveMessage",{messageType: message.messageType,session:session15})
+        }else{
+
+        }
+        break
     }
   }
   ws.onclose = ()=>{

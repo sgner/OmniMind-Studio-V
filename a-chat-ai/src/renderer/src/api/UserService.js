@@ -12,3 +12,7 @@ export const commentService = (data)=>{
 export const createSessionService = (data)=>{
    return request.get(api.createSession,{params:{robotId:data}})
 }
+
+export const applyRobotService = (data)=>{
+   return request.post(api.applyRobot,data)
+}

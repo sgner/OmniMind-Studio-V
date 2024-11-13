@@ -493,7 +493,7 @@ const handleResultSrc = (file) => {
       overflow: auto;
       word-wrap: break-word;
       word-break: break-all;
-      position: relative; /* Add position relative for positioning */
+      position: relative;
       :deep(.el-textarea__inner) {
         box-shadow: none;
         color: white;

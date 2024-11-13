@@ -2,7 +2,7 @@
 import {computed, onBeforeUnmount, onMounted, ref, watch} from "vue";
   import {useRobotIdStore} from "../../stores/RobotId";
   import {robotDetailService,commentListService} from "../../api/RobotService";
-  import {likeService} from "../../api/UserService";
+import {applyRobotService, likeService} from "../../api/UserService";
   import {commentService} from "../../api/UserService";
 import {createSessionService} from "../../api/UserService";
 const robotIdStore = useRobotIdStore();
@@ -114,6 +114,7 @@ const getPlaceholder=()=>{
 const showEnd = ref(false)
 const loadComment = async ()=>{
   currentPage.value +=1;
+  console.log("LOADCOMMENT")
   const result = await commentListService(
     {
       robotId: robotIdStore.robotId,
@@ -164,6 +165,10 @@ const createSession =async (data)=>{
         await router.push({path:"/main",query:result.data})
      }
 }
+const applyRobot = async (robotId)=>{
+  const result = await applyRobotService({"robotId":robotId});
+  await router.push({path:"/main",query:result.data})
+}
 </script>
 
 <template>
@@ -185,12 +190,13 @@ const createSession =async (data)=>{
            </el-row>
            <el-row style="margin-top: 20px">
                <el-col :span="4">
-                 <el-button class="bottom_style" plain type="primary" v-if="subscribe" @click="createSession(robot.id)">创建对话</el-button>
+                 <el-button class="bottom_style" plain type="primary" v-if="subscribe&&robot.categoryId!=6" @click="createSession(robot.id)">创建对话</el-button>
+                 <el-button class="bottom_style" plain type="primary" v-else-if="subscribe&&robot.categoryId==6" @click="workspace()">进入工作台</el-button>
                  <el-button class="bottom_style" v-else type="primary" plain>试用</el-button>
                </el-col>
                 <el-col :span="4" :offset="2">
                    <el-button class="bottom_style" type="danger" v-if="subscribe">取消订阅</el-button>
-                   <el-button class="bottom_style" v-else type="primary">订阅</el-button>
+                   <el-button class="bottom_style" v-else type="primary" @click="applyRobot(robot.id)">订阅</el-button>
                 </el-col>
            </el-row>
       </el-col>

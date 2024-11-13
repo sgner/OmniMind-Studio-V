@@ -8,12 +8,14 @@ import {robotSquareListService} from "../../api/RobotService";
 import {useRobotTypeStore} from "../../stores/RobotType";
 import {useRobotIdStore} from "../../stores/RobotId";
 import {useRightTitleStore} from "../../stores/RightTitle";
+import {applyRobotService} from "../../api/UserService";
 import {useRouter} from "vue-router";
 const search= ()=>{
 }
 const searchResults = ref([])
-const applyRobot = ()=>{
-
+const applyRobot = async (robotId)=>{
+   const result =  await applyRobotService({"robotId":robotId});
+   await router.push({path:"/main",query:result.data})
 }
 const unSubscribed =()=>{
 
@@ -70,7 +72,7 @@ const toDetail = (robotId,robotName)=>{
             v-if="
                 searchResult.status === 1 && !searchResult.subscribed
                  "
-            @click="applyRobot"
+            @click="applyRobot(searchResult.id)"
             class="op-btn"
           >订阅</el-button>
           <el-button type="danger"

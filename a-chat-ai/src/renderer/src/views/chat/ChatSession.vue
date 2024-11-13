@@ -128,7 +128,7 @@
  }
  .active{
     cursor: pointer;
-    background: #67579f;
+    background: #473c6b;
     .message-time{
        color: #fff !important;
     }
