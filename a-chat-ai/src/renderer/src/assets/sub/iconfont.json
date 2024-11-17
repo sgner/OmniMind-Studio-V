@@ -6,6 +6,48 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "2076264",
+      "name": "闹钟",
+      "font_class": "naozhong",
+      "unicode": "e890",
+      "unicode_decimal": 59536
+    },
+    {
+      "icon_id": "983",
+      "name": "音乐",
+      "font_class": "yinle",
+      "unicode": "e603",
+      "unicode_decimal": 58883
+    },
+    {
+      "icon_id": "629364",
+      "name": "完成",
+      "font_class": "wancheng",
+      "unicode": "e654",
+      "unicode_decimal": 58964
+    },
+    {
+      "icon_id": "1304884",
+      "name": "删除",
+      "font_class": "shanchu",
+      "unicode": "e621",
+      "unicode_decimal": 58913
+    },
+    {
+      "icon_id": "2674474",
+      "name": "播放",
+      "font_class": "bofang",
+      "unicode": "e624",
+      "unicode_decimal": 58916
+    },
+    {
+      "icon_id": "8094219",
+      "name": "下载",
+      "font_class": "xiazai",
+      "unicode": "e64e",
+      "unicode_decimal": 58958
+    },
+    {
       "icon_id": "26913475",
       "name": "静音",
       "font_class": "jingyin",

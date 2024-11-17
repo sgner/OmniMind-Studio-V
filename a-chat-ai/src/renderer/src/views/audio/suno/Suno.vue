@@ -1,12 +1,15 @@
 <script setup>
 import Base from "./Base.vue";
-import {onBeforeUnmount, onMounted, ref, watch} from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useShowPlayerStore } from '../../../stores/ShowPlayer'
 const choose = ref('1');
 const songTitle = ref('');
 const lyrics = ref('');
 const custom = ref(false);
 import {QuestionFilled} from "@element-plus/icons-vue"
 import MusicPlayerM from './player/MusicPlayerM.vue'
+import { getSunoMusicService } from '../../../api/SunoService'
+import SunoMusicPanel from './SunoMusicPanel.vue'
 const inds = ref('1');
 const selectedGenres = ref('流行');
 const genres = [
@@ -55,38 +58,23 @@ onBeforeUnmount(() => {
 });
 
 const myList = ref(
-   [
-    {
-      artistsName: "SUNO-AI",
-      cover:
-        "../../../../../src/assets/img/bgisS2.jpg",
-      id: 1857630559,
-      name: "SUNO",
-      url: "https://cdn1.suno.ai/fd83d529-b1e5-4d73-90df-deff9ba420c6.mp3",
-      lyric:
-        "\n[00:25.075]\n[00:25.189]是的我看见到处是阳光\n[00:29.156]快乐在城市上空飘扬\n[00:32.773]新世界来得像梦一样\n[00:36.689]让我暖洋洋\n[00:40.122]你的老怀表还在转吗\n[00:43.822]你的旧皮鞋还能穿吗\n[00:47.506]这儿有一支未来牌香烟\n[00:51.479]你不想尝尝吗\n[00:54.512]明天一早 我猜阳光会好\n[01:02.679]我要把自己打扫\n[01:05.896]把破旧的全部卖掉\n[01:09.212]哦这样多好 快来吧奔腾电脑\n[01:17.329]就让它们代替我来思考\n[01:27.229]穿新衣吧 剪新发型呀\n[01:31.347]轻松一下Windows98\n[01:35.048]打扮漂亮 18岁是天堂\n[01:39.064]我们的生活甜得像糖\n[01:42.431]穿新衣吧 剪新发型呀\n[01:46.098]轻松一下Windows98\n[01:49.914]以后的路不再会有痛苦\n[01:53.948]我们的未来该有多酷\n[02:12.481]是的我看见到处是阳光\n[02:16.164]快乐在城市上空飘扬\n[02:19.847]新世界来的像梦一样\n[02:23.748]让我暖洋洋\n[02:27.164]你的老怀表还在转吗\n[02:30.815]你的旧皮鞋还能穿吗\n[02:34.614]这儿有一支未来牌香烟\n[02:38.448]你不想尝尝吗\n[02:41.548]明天一早我猜阳光会好\n[02:49.898]我要把自己打扫\n[02:53.564]把破旧的全部卖掉\n[02:56.198]哦这样多好 快来吧奔腾电脑\n[03:04.598]就让它们代替我来思考\n[03:11.081]\n[03:11.414]穿新衣吧剪新发型呀\n[03:14.698]轻松一下Windows98\n[03:18.264]打扮漂亮18岁是天堂\n[03:22.481]我们的生活甜得像糖\n[03:25.964]穿新衣吧剪新发型呀\n[03:29.515]轻松一下Windows98\n[03:33.264]以后的路不再会有痛苦\n[03:37.681]我们的未来该有多酷",
-    }, {
-      artistsName: "SUNO-AI",
-      cover:
-        "../../../../../src/assets/img/bgisS2.jpg",
-      id: 1857630551,
-      name: "SUNO2",
-      url: "https://cdn1.suno.ai/fd83d529-b1e5-4d73-90df-deff9ba420c6.mp3",
-      lyric:
-        "\n[00:25.075]\n[00:25.189]是的我看见到处是阳光\n[00:29.156]快乐在城市上空飘扬\n[00:32.773]新世界来得像梦一样\n[00:36.689]让我暖洋洋\n[00:40.122]你的老怀表还在转吗\n[00:43.822]你的旧皮鞋还能穿吗\n[00:47.506]这儿有一支未来牌香烟\n[00:51.479]你不想尝尝吗\n[00:54.512]明天一早 我猜阳光会好\n[01:02.679]我要把自己打扫\n[01:05.896]把破旧的全部卖掉\n[01:09.212]哦这样多好 快来吧奔腾电脑\n[01:17.329]就让它们代替我来思考\n[01:27.229]穿新衣吧 剪新发型呀\n[01:31.347]轻松一下Windows98\n[01:35.048]打扮漂亮 18岁是天堂\n[01:39.064]我们的生活甜得像糖\n[01:42.431]穿新衣吧 剪新发型呀\n[01:46.098]轻松一下Windows98\n[01:49.914]以后的路不再会有痛苦\n[01:53.948]我们的未来该有多酷\n[02:12.481]是的我看见到处是阳光\n[02:16.164]快乐在城市上空飘扬\n[02:19.847]新世界来的像梦一样\n[02:23.748]让我暖洋洋\n[02:27.164]你的老怀表还在转吗\n[02:30.815]你的旧皮鞋还能穿吗\n[02:34.614]这儿有一支未来牌香烟\n[02:38.448]你不想尝尝吗\n[02:41.548]明天一早我猜阳光会好\n[02:49.898]我要把自己打扫\n[02:53.564]把破旧的全部卖掉\n[02:56.198]哦这样多好 快来吧奔腾电脑\n[03:04.598]就让它们代替我来思考\n[03:11.081]\n[03:11.414]穿新衣吧剪新发型呀\n[03:14.698]轻松一下Windows98\n[03:18.264]打扮漂亮18岁是天堂\n[03:22.481]我们的生活甜得像糖\n[03:25.964]穿新衣吧剪新发型呀\n[03:29.515]轻松一下Windows98\n[03:33.264]以后的路不再会有痛苦\n[03:37.681]我们的未来该有多酷",
-    },{
-      artistsName: "SUNO-AI",
-      cover:
-        "../../../../../src/assets/img/bgisS2.jpg",
-      id: 1857630552,
-      name: "SUNO3",
-      url: "https://cdn1.suno.ai/fd83d529-b1e5-4d73-90df-deff9ba420c6.mp3",
-      lyric:
-        "\n[00:25.075]\n[00:25.189]是的我看见到处是阳光\n[00:29.156]快乐在城市上空飘扬\n[00:32.773]新世界来得像梦一样\n[00:36.689]让我暖洋洋\n[00:40.122]你的老怀表还在转吗\n[00:43.822]你的旧皮鞋还能穿吗\n[00:47.506]这儿有一支未来牌香烟\n[00:51.479]你不想尝尝吗\n[00:54.512]明天一早 我猜阳光会好\n[01:02.679]我要把自己打扫\n[01:05.896]把破旧的全部卖掉\n[01:09.212]哦这样多好 快来吧奔腾电脑\n[01:17.329]就让它们代替我来思考\n[01:27.229]穿新衣吧 剪新发型呀\n[01:31.347]轻松一下Windows98\n[01:35.048]打扮漂亮 18岁是天堂\n[01:39.064]我们的生活甜得像糖\n[01:42.431]穿新衣吧 剪新发型呀\n[01:46.098]轻松一下Windows98\n[01:49.914]以后的路不再会有痛苦\n[01:53.948]我们的未来该有多酷\n[02:12.481]是的我看见到处是阳光\n[02:16.164]快乐在城市上空飘扬\n[02:19.847]新世界来的像梦一样\n[02:23.748]让我暖洋洋\n[02:27.164]你的老怀表还在转吗\n[02:30.815]你的旧皮鞋还能穿吗\n[02:34.614]这儿有一支未来牌香烟\n[02:38.448]你不想尝尝吗\n[02:41.548]明天一早我猜阳光会好\n[02:49.898]我要把自己打扫\n[02:53.564]把破旧的全部卖掉\n[02:56.198]哦这样多好 快来吧奔腾电脑\n[03:04.598]就让它们代替我来思考\n[03:11.081]\n[03:11.414]穿新衣吧剪新发型呀\n[03:14.698]轻松一下Windows98\n[03:18.264]打扮漂亮18岁是天堂\n[03:22.481]我们的生活甜得像糖\n[03:25.964]穿新衣吧剪新发型呀\n[03:29.515]轻松一下Windows98\n[03:33.264]以后的路不再会有痛苦\n[03:37.681]我们的未来该有多酷",
-    },
-  ]
+   []
 )
+const getMusicList = async ()=>{
+   const result = await getSunoMusicService();
+   myList.value = result.data
+   console.log(JSON.stringify(myList.value))
+}
+getMusicList()
+const openPlayer = ref(false)
 
+const showPlayerStore = useShowPlayerStore()
+const openIndex = ref()
+watch(()=>showPlayerStore.showPlayer,(newPlay)=>{
+          console.log(newPlay.show)
+         openPlayer.value = newPlay.show;
+         openIndex.value = newPlay.index;
+},{deep:true})
 </script>
 <template>
  <Base>
@@ -281,18 +269,105 @@ const myList = ref(
       </el-row>
     </template>
      <template #right-show>
-          <el-row  justify="center" style="padding-top: 15px">
+          <el-row v-if="!openPlayer"  justify="center" style="padding-top: 15px">
               <el-col :span="18" class="input-right">
                   <el-input placeholder="搜索创作的歌曲">
                   </el-input>
               </el-col>
           </el-row>
-         <MusicPlayerM :song-list-props="myList"></MusicPlayerM>
+
+       <el-scrollbar v-show="!openPlayer && myList.length>0" style="height: calc(100vh - 130px);width: 100%;margin-top: 25px">
+           <el-row  class="song-grid" >
+
+               <div v-for="(song,index) in myList">
+                 <SunoMusicPanel :song="song" :index="index"></SunoMusicPanel>
+               </div>
+
+           </el-row>
+       </el-scrollbar>
+         <transition name="drawer" mode="in-out">
+       <div style="margin-top: 15px" v-if="openPlayer">
+         <MusicPlayerM :key="openIndex" :song-list-props="myList" :index-props="openIndex"></MusicPlayerM>
+       </div>
+       </transition>
      </template>
  </Base>
 </template>
 
 <style lang="scss" scoped>
+@keyframes slide-up {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  25% {
+    transform: translateY(75%);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(50%);
+    opacity: 0.75;
+  }
+  75% {
+    transform: translateY(25%);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.drawer-enter-active {
+  animation: slide-up 0.6s ease-out forwards;
+}
+
+.drawer-leave-active {
+  animation: slide-down 0.6s ease-out forwards;
+}
+
+@keyframes slide-down {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+.song-grid{
+  margin-left: 20px;
+  margin-top: 60px;
+  display: grid;
+  grid-gap: 10px;
+  overflow-y: auto;
+  grid-template-columns: repeat(1, 1fr);
+}
+.song-grid .infinite-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.song-grid ::-webkit-scrollbar{
+    display: none;
+}
+@media (min-width: 1468px){
+   .song-grid{
+     grid-template-columns: repeat(3, 1fr);
+   }
+}
+@media (min-width: 1782px) {
+  .song-grid{
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+@media (min-width: 2166px) {
+  .song-grid{
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
 .bottom-show {
   visibility: visible;
   opacity: 1;

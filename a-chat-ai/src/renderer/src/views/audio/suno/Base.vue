@@ -30,19 +30,25 @@
 
 .right-container {
   flex: 1;
-  position: relative;
+  position: relative; /* 确保 .bg 的 z-index 基于 .right-container */
   height: 100vh;
   opacity: 0.9;
   min-width: 100px;
-
 }
-.bg{
-  margin-top: -52px;
-  height: 100vh;
+.bg {
+  position: absolute; /* 保证背景位置固定在 .right-container 内部 */
+  top: 0;
+  left: 0;
+  z-index: -1; /* 设置 z-index 为 0，位于其他内容之下 */
+  height: 100%;
   width: 100%;
   background-image: url('../../../assets/img/sunob2.jpg');
-  background-size: cover; /* 确保背景图完全填充 */
+  background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+}
+.right-container > slot {
+  z-index: 1;
+  position: relative; /* 使插槽内容位于背景之上 */
 }
 </style>

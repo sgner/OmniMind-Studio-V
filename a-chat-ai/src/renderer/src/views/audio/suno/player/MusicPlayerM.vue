@@ -1,10 +1,13 @@
 
 <template>
   <div class="main-page">
-    <audio :src="songInfo.url" id="music" autoplay="autoplay"></audio>
+    <div class="top-left-button">
+      <el-button size="large" type="text" @click="handleButtonClick"><el-icon size="25"><ArrowDown /></el-icon></el-button>
+    </div>
+    <audio :src="songInfo.audio_url" id="music" autoplay="autoplay"></audio>
     <div
       class="background-flitter"
-      :style="`background-image: url(${songInfo.cover})`"
+      :style="`background-image: url(${songInfo.image_url})`"
     ></div>
     <div class="play-mini">
       <div class="progress-bar" @click="handleProgressClick" ref="track">
@@ -14,11 +17,11 @@
         ></div>
       </div>
       <div class="songInfo">
-        <img class="poster" :src="songInfo.cover" alt="" />
+        <img class="poster" :src="songInfo.image_url" alt="" />
         <!-- 歌名、歌手名 -->
         <div class="info">
-          <p style="font-weight: 600; color: #fff;">{{ songInfo.name }}</p>
-          <p style="font-size: 14px; color: #fff">{{ songInfo.artistsName }}</p>
+          <p style="font-weight: 600; color: #fff;">{{ songInfo.title }}</p>
+          <p style="font-size: 14px; color: #fff">{{ songInfo.model_name }}</p>
         </div>
       </div>
 
@@ -110,10 +113,10 @@
     <div class="song-cover-lyric">
       <div class="disc-continer">
         <div class="poster" ref="rotate">
-          <img :src="songInfo.cover" alt="" />
+          <img :src="songInfo.image_url" alt="" />
         </div>
-        <div class="song-name">{{ songInfo.name }}</div>
-        <div class="song-artistsName">{{ songInfo.artistsName }}</div>
+        <div class="song-name">{{ songInfo.title }}</div>
+        <div class="song-artistsName">{{ songInfo.model_name }}</div>
       </div>
       <div class="lyric">
         <mscroll
@@ -146,16 +149,16 @@
           <el-col :span="7">
             <el-image
               fit="cover"
-              :src="item.cover"
+              :src="item.image_url"
               style="border-radius: 5px; width: 60px; height: 60px;"
             ></el-image>
           </el-col>
           <el-col :span="15">
             <el-row>
-              <div style="font-weight: bold; font-size: 14px;">歌曲名：{{ item.name }}</div>
+              <div style="font-weight: bold; font-size: 14px;">歌曲名：{{ item.title }}</div>
             </el-row>
             <el-row style="margin-top: 25px;">
-              <div style="color: #666; font-size: 12px;">作者：{{ item.artistsName }}</div>
+              <div style="color: #666; font-size: 12px;">Model：{{ item.model_name }}</div>
             </el-row>
           </el-col>
         </el-row>
@@ -164,10 +167,10 @@
   </div>
 </template>
 <script>
-import Message from '../../../../utils/Message'
 import Mscroll from "./lyricScroll.vue";
 import {TimeToString, TimeToSeconds } from './timeConversion'
-import axios from "axios";
+import {ArrowDown} from  "@element-plus/icons-vue"
+import { useShowPlayerStore } from '../../../../stores/ShowPlayer'
 export default {
   data() {
     return {
@@ -199,17 +202,14 @@ export default {
        type: Array,
        default: () => []
     },
-    songInfoProps: {
-       type: Object,
-       default: () => {}
-    },
-    lyricInfoProps: {
-       type: Array,
-       default: () => []
+    indexProps:{
+       type: Number,
+       default: 0
     }
   },
   created() {},
   components: {
+    ArrowDown,
     Mscroll,
   },
   computed: {
@@ -238,6 +238,16 @@ export default {
     }
   },
   methods: {
+    handleButtonClick(){
+      const showStore = useShowPlayerStore()
+       showStore.showPlayer = {
+           show: false,
+           index: null
+       }
+      this.playing = false;
+      this.$refs.rotate.style.animationPlayState = "paused";
+      music.pause();
+    },
     //音量变化
     volumeChange() {
       if (this.volumeStatus) {
@@ -274,7 +284,7 @@ export default {
     },
     ClickPlay() {
       this.audioInit();
-      this.getMusicList(this.songInfo.id);
+      // this.getMusicList(this.songInfo.lyric);
       this.$refs.rotate.style.animationPlayState = "running";
       this.playing = true;
       setTimeout(() => {
@@ -293,8 +303,8 @@ export default {
         console.log("没查到数据");
       }
       this.songList = myList;
-      this.songInfo = this.songList[0];
-      this.getMusicList(this.songInfo.id); //通过正在播放的歌曲id获取歌曲播放的URL歌词信息
+      this.songInfo = this.songList[this.indexProps];
+      // this.getMusicList(this.songInfo.lyric); //通过正在播放的歌曲id获取歌曲播放的URL歌词信息
       this.audioInit();
     },
     audioInit() {
@@ -330,7 +340,7 @@ export default {
             break;
         }
         that.songInfo = that.songList[that.playIndex];
-        this.getMusicList(that.songInfo.id);
+        // this.getMusicList(that.songInfo.lyric);
         setTimeout(() => {
           this.$refs.rotate.style.animationPlayState = "running";
           music.play();
@@ -354,7 +364,7 @@ export default {
     PlayListMusic(index) {
       this.playIndex = index;
       this.songInfo = this.songList[this.playIndex];
-      this.getMusicList(this.songInfo.id);
+      // this.getMusicList(this.songInfo.lyric);
       this.playing = true;
       this.drawer = false;
       setTimeout(() => {
@@ -398,7 +408,7 @@ export default {
           break;
       }
       this.songInfo = this.songList[this.playIndex];
-      this.getMusicList(this.songInfo.id);
+      // this.getMusicList(this.songInfo.lyric);
       this.playing = true;
       setTimeout(() => {
         this.$refs.rotate.style.animationPlayState = "running";
@@ -415,19 +425,9 @@ export default {
       }
     },
     //获取歌曲播放的URL信息
-    getMusicList(id) {
+    getMusicList(data) {
       let that = this;
-      axios.get("/musicController/getMusicURLInfo/" + id).then(function (res) {
-        switch (res.code) {
-          case "0000":
-            that.songInfo.url = res.data.url;
-            that.GetLyricList(res.data.lyric);
-            break;
-          case "1111":
-            Message.warning("获取歌曲播放地址失败！");
-            break;
-        }
-      });
+      that.GetLyricList(data);
     },
     GetLyricList(lrc) {
       let lyricsObjArr = [];
@@ -464,7 +464,13 @@ export default {
 
 <style lang="less" scoped>
 .song-list-rtl :hover{
-    background: #2a243f;
+    background: #42376e;
+}
+.top-left-button {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1000; /* 确保按钮位于最上层 */
 }
 .main-page {
   width: 100%;
