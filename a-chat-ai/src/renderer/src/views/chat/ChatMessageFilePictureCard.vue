@@ -62,6 +62,7 @@ const showImgView = (fileSrc) => {
     }
   });
 };
+console.log(JSON.stringify(props.file));
 </script>
 
 <template>

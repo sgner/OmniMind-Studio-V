@@ -7,8 +7,8 @@
       <slot name="left-panel"></slot>
     </div>
     <div class="right-container">
-       <div class="bg">
-      <slot name="right-show"></slot></div>
+      <slot name="right-show"></slot>
+      <div class="bg"></div>
     </div>
   </div>
 </template>
@@ -21,11 +21,10 @@
 
 .left-sider-inner {
   position: relative;
-  width: 300px;
-  height: 100vh;
+  width: 310px;
+  height: calc(100vh - 60px);
   border-right: 2px solid #ffffff;
   background: #000000;
-  opacity: 0.9;
   overflow: hidden;
 }
 
@@ -33,11 +32,12 @@
   flex: 1;
   position: relative;
   height: 100vh;
-  opacity: 0.6;
+  opacity: 0.9;
   min-width: 100px;
 
 }
 .bg{
+  margin-top: -52px;
   height: 100vh;
   width: 100%;
   background-image: url('../../../assets/img/sunob2.jpg');

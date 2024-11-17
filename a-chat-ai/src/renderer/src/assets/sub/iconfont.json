@@ -6,6 +6,90 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "26913475",
+      "name": "静音",
+      "font_class": "jingyin",
+      "unicode": "e62a",
+      "unicode_decimal": 58922
+    },
+    {
+      "icon_id": "11179273",
+      "name": "音量",
+      "font_class": "yinliang",
+      "unicode": "e6c9",
+      "unicode_decimal": 59081
+    },
+    {
+      "icon_id": "781658",
+      "name": "列表6-01",
+      "font_class": "liebiao601",
+      "unicode": "e6bb",
+      "unicode_decimal": 59067
+    },
+    {
+      "icon_id": "8065312",
+      "name": "下一首",
+      "font_class": "xiayishou-copy-copy",
+      "unicode": "e601",
+      "unicode_decimal": 58881
+    },
+    {
+      "icon_id": "8065313",
+      "name": "下一首",
+      "font_class": "xiayishou-copy-copy-copy",
+      "unicode": "e602",
+      "unicode_decimal": 58882
+    },
+    {
+      "icon_id": "11179037",
+      "name": "随机播放",
+      "font_class": "suijibofang",
+      "unicode": "e6b5",
+      "unicode_decimal": 59061
+    },
+    {
+      "icon_id": "160118",
+      "name": "列表循环",
+      "font_class": "liebiaoxunhuan",
+      "unicode": "e691",
+      "unicode_decimal": 59025
+    },
+    {
+      "icon_id": "2154283",
+      "name": "单曲循环_32",
+      "font_class": "danquxunhuan",
+      "unicode": "e66d",
+      "unicode_decimal": 58989
+    },
+    {
+      "icon_id": "18538033",
+      "name": "22_随机播放",
+      "font_class": "22_suijibofang",
+      "unicode": "e658",
+      "unicode_decimal": 58968
+    },
+    {
+      "icon_id": "5981251",
+      "name": "暂停",
+      "font_class": "zanting",
+      "unicode": "e676",
+      "unicode_decimal": 58998
+    },
+    {
+      "icon_id": "12430769",
+      "name": "暂停",
+      "font_class": "zanting1",
+      "unicode": "e6c5",
+      "unicode_decimal": 59077
+    },
+    {
+      "icon_id": "18547358",
+      "name": "原声创作",
+      "font_class": "yuanshengchuangzuo",
+      "unicode": "e675",
+      "unicode_decimal": 58997
+    },
+    {
       "icon_id": "77697",
       "name": "点赞",
       "font_class": "dianzan",

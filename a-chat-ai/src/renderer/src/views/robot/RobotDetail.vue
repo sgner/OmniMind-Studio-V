@@ -375,7 +375,7 @@ const applyRobot = async (robotId)=>{
   position: fixed;
   z-index: 9999; /* 确保在其他元素之上 */
 }
-.infinite-list { /* 100px 是你顶部内容的高度，20px 是你希望的底部间距 */
+.infinite-list {
   padding: 0;
   margin: 0;
   list-style: none;

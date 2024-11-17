@@ -329,6 +329,8 @@ const handleResultSrc = (file) => {
     file.imageSrc = file.src;
   }
 }
+
+console.log(JSON.stringify(showFileList.value));
 </script>
 
 <template>

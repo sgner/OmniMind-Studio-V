@@ -79,7 +79,7 @@ const cancelSvg = `
        >
         <el-image
           loading="lazy"
-          :src="file.imageSrc"
+          :src="file.src"
           :hide-on-click-modal="true"
           :preview-src-list="[file.src]"
           fit="contain"

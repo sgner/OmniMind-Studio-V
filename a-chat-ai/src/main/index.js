@@ -69,7 +69,7 @@ function createWindow() {
      mainWindow.center()
      mainWindow.setMaximizable(true)
      // mainWindow.setMaximumSize(1424,1068)
-     mainWindow.setMinimumSize(1354,768)
+     mainWindow.setMinimumSize(1468,935)
    })
 
   loginSuccess((data)=>{

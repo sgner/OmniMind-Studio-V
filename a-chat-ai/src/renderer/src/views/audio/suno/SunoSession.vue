@@ -2,7 +2,6 @@
 import {useCollapsedStore} from "../../../stores/Collapsed";
 import {computed} from "vue";
 import {defineProps} from "vue";
-import AvatarBase from "../../../components/AvatarBase.vue";
 const collapsedStore = useCollapsedStore();
 const isCollapsed = computed(() => collapsedStore.collapse);
 const props = defineProps({

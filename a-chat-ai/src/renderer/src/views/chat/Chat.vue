@@ -1,5 +1,6 @@
 <script setup>
-import layout from '@/components/layout.vue'
+import layout from '@/components/layout.vue';
+import "../../assets/musicBase.less"
 import {useCollapsedStore} from "../../stores/Collapsed";
 import {computed, onMounted, ref, watch} from "vue";
 import chatSession from "@/views/chat/ChatSession.vue"
@@ -109,11 +110,13 @@ const chatSessionClickHandler = async (item)=>{
     goBottom();
     const result = await loadUploadedFile(currentChatSession.value.sessionId)
     const uploadData = result.data;
+    console.log(JSON.stringify(uploadData))
     const storeUpload = uploadDataStore.data[currentChatSession.value.sessionId]
     if((uploadData === null || uploadData.length === 0)&& storeUpload !== null&& storeUpload.length !== 0){
       uploadDataStore.removeData(currentChatSession.value.sessionId)
       ElMessage.warning("该会话上传的文件已经失效")
     }else if(uploadData.length >= 0){
+      console.log(currentChatSession.value.sessionId)
       uploadDataStore.setData(currentChatSession.value.sessionId,uploadData)
     }
     await preApi.setSessionSelect(currentChatSession.value.robotId,currentChatSession.value.sessionId)

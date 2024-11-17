@@ -26,6 +26,6 @@ export const useUploadDataStore = defineStore('uploadData',()=>{
     }
   },
   {
-    persist:false
+    persist:true
   }
 )

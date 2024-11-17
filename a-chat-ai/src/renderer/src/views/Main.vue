@@ -150,7 +150,6 @@ watch(() => routed.query.sessionId, (newSessionId) => {
 }
 .bg::before{
   content: "";
-  border-radius: 15px;
   position: absolute;
   width: 100%;
   height: 100%;
@@ -162,7 +161,6 @@ watch(() => routed.query.sessionId, (newSessionId) => {
 }
 .bgImage{
   position: absolute;
-  border-radius: 15px;
   top: 50%;
   left: 50%;
   min-width: 100%;
