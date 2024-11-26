@@ -6,6 +6,20 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "33348640",
+      "name": "add",
+      "font_class": "add",
+      "unicode": "e609",
+      "unicode_decimal": 58889
+    },
+    {
+      "icon_id": "35123810",
+      "name": "火焰",
+      "font_class": "huoyan",
+      "unicode": "ea99",
+      "unicode_decimal": 60057
+    },
+    {
       "icon_id": "2076264",
       "name": "闹钟",
       "font_class": "naozhong",

@@ -40,7 +40,8 @@ const add_tables = [
   "   last_message VARCHAR(255)," +
   "   last_time TEXT NOT NULL," +  // 使用 TEXT 类型来存储 datetime
   "   robot_number INTEGER,"+
-  "   top_type INTEGER DEFAULT 0"+
+  "   top_type INTEGER DEFAULT 0,"+
+  "   user_name VARCHAR(255)" +
   ");",
 
   "CREATE TABLE IF NOT EXISTS user_setting("+

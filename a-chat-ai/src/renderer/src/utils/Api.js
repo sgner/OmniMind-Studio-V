@@ -1,5 +1,7 @@
 const api = {
   sunoSongList:"/suno/result",
+  genSongCustom:"/suno/custom",
+  genSonSim:"/suno/fast",
   createSession:"/user/new/session",
   applyRobot:"/user/subscribe",
   like:"/user/comment/like",

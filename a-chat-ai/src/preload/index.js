@@ -40,6 +40,11 @@ const preApi = {
       } else if(data.messageType === 15){
         const session = await loadChatSession();
         callback(null, session,data);  // 如果是其他类型的消息，也通过回调返回
+      }else if(data.messageType === 14){
+          callback(null, null,data);
+      }else if(data.messageType === 16){
+         const session = await loadChatSession();
+         callback(null,session,data);
       }
     });
   },

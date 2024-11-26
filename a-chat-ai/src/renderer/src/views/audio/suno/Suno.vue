@@ -2,15 +2,20 @@
 import Base from "./Base.vue";
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useShowPlayerStore } from '../../../stores/ShowPlayer'
+import {genSunoMusicService} from '../../../api/SunoService'
+import { useGenResponse } from '../../../stores/GenResponse'
+import { useSunoMusicList } from '../../../stores/SunoMusicList'
 const choose = ref('1');
 const songTitle = ref('');
 const lyrics = ref('');
+const prompt = ref('');
 const custom = ref(false);
 import {QuestionFilled} from "@element-plus/icons-vue"
 import MusicPlayerM from './player/MusicPlayerM.vue'
 import { getSunoMusicService } from '../../../api/SunoService'
 import SunoMusicPanel from './SunoMusicPanel.vue'
-const inds = ref('1');
+const inds = ref(false);
+const customGenres = ref();
 const selectedGenres = ref('流行');
 const genres = [
   "流行",
@@ -38,6 +43,13 @@ const moons = [
   "宣泄",
   "甜蜜"
 ]
+const props = defineProps({
+       sessionId: {
+          type: String,
+          default: ''
+       }
+})
+
 watch(()=>selectedGenres.value,(news)=>{
    console.log(news)
 })
@@ -57,13 +69,23 @@ onBeforeUnmount(() => {
   window.removeEventListener("resize", updateScrollHeight);
 });
 
-const myList = ref(
-   []
-)
+const sunoMusicListStore = useSunoMusicList()
 const getMusicList = async ()=>{
-   const result = await getSunoMusicService();
-   myList.value = result.data
-   console.log(JSON.stringify(myList.value))
+    const result = await getSunoMusicService();
+    // sunoMusicListStore.musicList = result.data
+    const resultLen = result.data.length;
+    const storeLen = sunoMusicListStore.musicList.length;
+    console.log(resultLen , storeLen)
+    console.log(JSON.stringify(result.data))
+   if(storeLen>0 && sunoMusicListStore.musicList[0].status === 'gen'){
+            if(resultLen >= storeLen){
+               sunoMusicListStore.musicList = result.data
+            }
+   }else{
+       if(resultLen !== storeLen){
+         sunoMusicListStore.musicList = result.data
+       }
+   }
 }
 getMusicList()
 const openPlayer = ref(false)
@@ -75,6 +97,27 @@ watch(()=>showPlayerStore.showPlayer,(newPlay)=>{
          openPlayer.value = newPlay.show;
          openIndex.value = newPlay.index;
 },{deep:true})
+
+const genSunoMusic = async ()=>{
+  const result =  await genSunoMusicService(choose.value,{
+        type: choose.value === '1'? 'sunoCustomDTO':'sunoFastDTO',
+        make_instrumental:  inds.value,
+        sessionId: props.sessionId,
+        prompt: choose.value ==='1'? lyrics.value: prompt.value,
+        tags:  choose.value === '1'? custom.value? customGenres.value : selectedGenres.value + "," + selectMoon.value : '',
+        title: songTitle.value
+    })
+  if(result.code === 20000){
+        sunoMusicListStore.musicList.unshift({
+              title: '正在生成中',
+              status: 'gen'
+        })
+  }
+}
+
+watch(()=>sunoMusicListStore.musicList,(s)=>{
+           console.log(JSON.stringify(s))
+})
 </script>
 <template>
  <Base>
@@ -209,10 +252,10 @@ watch(()=>showPlayerStore.showPlayer,(newPlay)=>{
                        spellcheck="true"
                        rows="8"
                        resize="none"
-                       v-model="lyrics"
+                       v-model="customGenres"
                        show-word-limit
                        maxlength="200"
-                       placeholder="请输入风格"></el-input>
+                       placeholder="请输入风格,风格之间使用逗号分割"></el-input>
            </el-row>
          </div>
        </div>
@@ -234,7 +277,7 @@ watch(()=>showPlayerStore.showPlayer,(newPlay)=>{
                       spellcheck="true"
                       rows="13"
                       resize="none"
-                      v-model="lyrics"
+                      v-model="prompt"
                       show-word-limit
                       maxlength="200"
                       placeholder="请输入描述"></el-input>
@@ -256,15 +299,19 @@ watch(()=>showPlayerStore.showPlayer,(newPlay)=>{
      </div>
       <el-row class="bottom-btn-container">
          <el-col :span="6">
-           <el-button style="width: 150px" type="goon">
-             开始创作
-             <svg
-               style="fill: currentColor; overflow: hidden; width: 1.5em; height: 1.5em;margin-left: 7px"
-               aria-hidden="true"
-             >
-               <use :xlink:href="`#icon-yuanshengchuangzuo`"></use>
-             </svg>
-           </el-button>
+           <el-tooltip
+              content="一次创作，会生成两首歌，请耐心等待！"
+           >
+             <el-button style="width: 150px" type="goon" @click="genSunoMusic">
+               开始创作
+               <svg
+                 style="fill: currentColor; overflow: hidden; width: 1.5em; height: 1.5em;margin-left: 7px"
+                 aria-hidden="true"
+               >
+                 <use :xlink:href="`#icon-yuanshengchuangzuo`"></use>
+               </svg>
+             </el-button>
+           </el-tooltip>
          </el-col>
       </el-row>
     </template>
@@ -276,10 +323,9 @@ watch(()=>showPlayerStore.showPlayer,(newPlay)=>{
               </el-col>
           </el-row>
 
-       <el-scrollbar v-show="!openPlayer && myList.length>0" style="height: calc(100vh - 130px);width: 100%;margin-top: 25px">
+       <el-scrollbar v-show="!openPlayer" style="height: calc(100vh - 130px);width: 100%;margin-top: 25px">
            <el-row  class="song-grid" >
-
-               <div v-for="(song,index) in myList">
+               <div v-for="(song,index) in sunoMusicListStore.musicList">
                  <SunoMusicPanel :song="song" :index="index"></SunoMusicPanel>
                </div>
 
@@ -287,7 +333,7 @@ watch(()=>showPlayerStore.showPlayer,(newPlay)=>{
        </el-scrollbar>
          <transition name="drawer" mode="in-out">
        <div style="margin-top: 15px" v-if="openPlayer">
-         <MusicPlayerM :key="openIndex" :song-list-props="myList" :index-props="openIndex"></MusicPlayerM>
+         <MusicPlayerM :key="openIndex" :song-list-props="sunoMusicListStore.musicList" :index-props="openIndex"></MusicPlayerM>
        </div>
        </transition>
      </template>

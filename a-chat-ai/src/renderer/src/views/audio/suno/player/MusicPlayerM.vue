@@ -191,7 +191,7 @@ export default {
       thumbTranslateX: 0,
       lyricIndex: 0,
       color: "#fff", //歌词默认颜色
-      colorLight: "#40ce8f", //歌词高亮色
+      colorLight: "#7d4ed3", //歌词高亮色
       fontSize: "16px", //歌词字体大小
       lineHeight: "42", //每段行高
       paddingTop: "300px", //高亮歌词部分居中
@@ -284,7 +284,7 @@ export default {
     },
     ClickPlay() {
       this.audioInit();
-      // this.getMusicList(this.songInfo.lyric);
+      this.getMusicList(this.songInfo.lyric);
       this.$refs.rotate.style.animationPlayState = "running";
       this.playing = true;
       setTimeout(() => {
@@ -304,7 +304,8 @@ export default {
       }
       this.songList = myList;
       this.songInfo = this.songList[this.indexProps];
-      // this.getMusicList(this.songInfo.lyric); //通过正在播放的歌曲id获取歌曲播放的URL歌词信息
+      this.playIndex = this.indexProps;
+      this.getMusicList(this.songInfo.lyric); //通过正在播放的歌曲id获取歌曲播放的URL歌词信息
       this.audioInit();
     },
     audioInit() {
@@ -340,7 +341,7 @@ export default {
             break;
         }
         that.songInfo = that.songList[that.playIndex];
-        // this.getMusicList(that.songInfo.lyric);
+        this.getMusicList(that.songInfo.lyric);
         setTimeout(() => {
           this.$refs.rotate.style.animationPlayState = "running";
           music.play();
@@ -364,7 +365,7 @@ export default {
     PlayListMusic(index) {
       this.playIndex = index;
       this.songInfo = this.songList[this.playIndex];
-      // this.getMusicList(this.songInfo.lyric);
+      this.getMusicList(this.songInfo.lyric);
       this.playing = true;
       this.drawer = false;
       setTimeout(() => {
@@ -408,7 +409,7 @@ export default {
           break;
       }
       this.songInfo = this.songList[this.playIndex];
-      // this.getMusicList(this.songInfo.lyric);
+      this.getMusicList(this.songInfo.lyric);
       this.playing = true;
       setTimeout(() => {
         this.$refs.rotate.style.animationPlayState = "running";
@@ -426,8 +427,9 @@ export default {
     },
     //获取歌曲播放的URL信息
     getMusicList(data) {
+      console.log(data)
       let that = this;
-      that.GetLyricList(data);
+      // that.GetLyricList(data);
     },
     GetLyricList(lrc) {
       let lyricsObjArr = [];

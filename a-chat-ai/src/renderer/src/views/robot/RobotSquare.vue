@@ -1,6 +1,6 @@
 <script setup>
 import ContentPanel from '@/components/ContentPanel.vue'
-import {ref} from "vue";
+import { ref, watch } from 'vue'
 const robotId = ref()
 const robotName  = ref()
 import RobotInfo from "../../components/RobotInfo.vue";
@@ -26,6 +26,9 @@ const loadData = async ()=>{
    searchResults.value = result.data;
 }
 loadData()
+watch(()=>robotTypeStore.robotType,()=>{
+        loadData()
+})
 const rightTitleStore = useRightTitleStore();
 const router = useRouter();
 const toDetail = (robotId,robotName)=>{

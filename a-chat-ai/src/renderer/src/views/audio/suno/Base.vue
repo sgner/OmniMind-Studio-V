@@ -39,7 +39,7 @@
   position: absolute; /* 保证背景位置固定在 .right-container 内部 */
   top: 0;
   left: 0;
-  z-index: -1; /* 设置 z-index 为 0，位于其他内容之下 */
+  z-index: -1;
   height: 100%;
   width: 100%;
   background-image: url('../../../assets/img/sunob2.jpg');

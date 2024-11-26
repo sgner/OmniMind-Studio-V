@@ -18,6 +18,9 @@ import {ElMessage, ElNotification} from "element-plus";
 import {useRoute, useRouter} from "vue-router";
 import Suno from "../audio/suno/Suno.vue";
 import message from "../../utils/Message";
+import { useSunoMusicList } from '../../stores/SunoMusicList'
+import XfCosWorkSpaceSession from '../cosplay/xf/XfCosWorkSpaceSession.vue'
+import XfCosWorkSpace from '../cosplay/xf/XfCosWorkSpace.vue'
 const chatSessionStore  = useChatSessionStore();
 const collapsedStore = useCollapsedStore();
 const uploadDataStore = useUploadDataStore()
@@ -48,8 +51,15 @@ onMounted(() => {
     }else if(data.messageType === 15){
       cuSession.value = session;
       chatSessionStore.setChatSession(session)
-      // currentChatSession.value = data.session;
        message.success("你已经成功订阅，现在为您跳转");
+    }else if(data.messageType === 14){
+        message.success("音乐创作完成！快去看看")
+        const sunoMusicListStore =  useSunoMusicList();
+        sunoMusicListStore.musicList = data.musicList;
+    }else if(data.messageType === 16){
+        cuSession.value = session;
+        chatSessionStore.setChatSession(session)
+        message.success("你已经成功订阅，现在为您跳转")
     }
   });
 });
@@ -161,7 +171,7 @@ const sortChatSession = (list)=>{
   list.sort((a,b)=>{
     const topTypeResult = b.topType-a.topType;
     if (topTypeResult === 0){
-      return a.lastTime - b.lastTime;
+      return b.lastTime - a.lastTime;
     }else{
       return topTypeResult;
     }
@@ -203,8 +213,9 @@ createSession();
       </div>
       <div class="chat-session-list">
         <template v-for="item in chatSessionStore.chatSession">
-          <chatSession v-if="item.robotType !== 6" :data="item" :currentSession="item.sessionId === currentChatSession.sessionId" @click="chatSessionClickHandler(item)" @contextmenu="onContextmenu(item,$event)"></chatSession>
+          <chatSession v-if="item.robotType !== 6 && item.robotType !== 2" :data="item" :currentSession="item.sessionId === currentChatSession.sessionId" @click="chatSessionClickHandler(item)" @contextmenu="onContextmenu(item,$event)"></chatSession>
           <SunoSesion v-else-if="item.robotId === 'R7429603393684e66be1463430c753da5'" :data="item" :current-session="item.sessionId === currentChatSession.sessionId" @click="chatSessionClickHandler(item)" @contextmenu="onContextmenu(item,$event)"></SunoSesion>
+          <XfCosWorkSpaceSession v-else-if="item.robotId === 'R44ef9ed192fb4bbdaa1a8d8e85aa3bdf'" :data="item" :current-session="item.sessionId === currentChatSession.sessionId" @click="chatSessionClickHandler(item)" @contextmenu="onContextmenu(item,$event)"></XfCosWorkSpaceSession>
         </template>
       </div>
     </template>
@@ -219,7 +230,7 @@ createSession();
       </div>
       <div class="iconfont icon-more no-drag" v-if="currentChatSession.robotType === 1" @click="showGroupDetail()">
       </div>
-      <div class="chat-panel" v-show="Object.keys(currentChatSession).length>0 && currentChatSession.robotType != 6">
+      <div class="chat-panel" v-show="Object.keys(currentChatSession).length>0 && currentChatSession.robotType != 6 && currentChatSession.robotType!== 2">
         <div class="message-panel"  v-infinite-scroll="loadMessage" id="message-panel">
           <div class="message-item" v-for="(data,index) in chatMessageStore.message" :id="'message' + data.question.id">
             <ChatMessage :data="data" :currentChatSession="currentChatSession"></ChatMessage>
@@ -228,7 +239,10 @@ createSession();
         <Message :currentChatSession="currentChatSession"></Message>
       </div>
       <div class="suno-panel" v-if="currentChatSession.robotId === 'R7429603393684e66be1463430c753da5'">
-        <Suno></Suno>
+        <Suno :session-id="currentChatSession.sessionId"></Suno>
+      </div>
+      <div class="xf-cos-panel"  v-if="currentChatSession.robotId === 'R44ef9ed192fb4bbdaa1a8d8e85aa3bdf'">
+           <XfCosWorkSpace></XfCosWorkSpace>
       </div>
     </template>
   </layout>
@@ -244,7 +258,12 @@ createSession();
 .suno-panel{
   display: flex;
   flex-direction: column;
-  height: 100vh; /* 保证聊天面板占据除顶部栏之外的剩余高度 */
+  height: 100vh;
+}
+.xf-cos-panel{
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 }
 /* 消息面板设置为可滚动 */
 .message-panel {

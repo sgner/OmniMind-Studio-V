@@ -72,18 +72,32 @@ const createWs = ()=>{
         await addChatSession(session)
         await wSender.send("receiveMessage",{messageType: 0})
         break;
+      case 14:
+         console.log("消息为14")
+         await wSender.send("receiveMessage",{messageType: message.messageType,musicList: message.extendData})
+         break;
       case 15:
         console.log("消息为15")
         const session15  = message.extendData
         if (session15 !== null){
           session15.lastTime =new Date(session15.lastTime[0],session15.lastTime[1],session15.lastTime[2],session15.lastTime[3],session15.lastTime[4],session15.lastTime[5],Math.floor(session15.lastTime[6]/1000000)).getTime()
           console.log("session15",JSON.stringify(session15))
+          session15.topType = 1
           await addChatSession(session15)
           await wSender.send("receiveMessage",{messageType: message.messageType,session:session15})
         }else{
 
         }
         break
+      case 16:
+        console.log("消息为16")
+        const session16 = message.extendData
+        if (session16 !== null){
+          session16.lastTime = new Date(session16.lastTime[0],session16.lastTime[1],session16.lastTime[2],session16.lastTime[3],session16.lastTime[4],session16.lastTime[5],Math.floor(session16.lastTime[6]/1000000)).getTime()
+          session16.topType = 1
+          await addChatSession(session16)
+          await wSender.send("receiveMessage",{messageType: message.messageType, session: session16})
+        }
     }
   }
   ws.onclose = ()=>{

@@ -52,6 +52,11 @@ const routes=[
             path: '/robot/subscribe',
             name:'机器人广场',
             component:()=>import("../views/robot/RobotSquare.vue")
+          },
+          {
+            path: '/robot/rolePlay',
+            name: '角色扮演订阅',
+            component:()=> import("../views/robot/RobotSquare.vue")
           }
         ]
       },
