@@ -16,3 +16,13 @@ export const createSessionService = (data)=>{
 export const applyRobotService = (data)=>{
    return request.post(api.applyRobot,data)
 }
+export const uploadAvatarService = (data)=>{
+   return request.post(api.uploadAvatar,data,{
+     headers:{
+       "Content-Type": "multipart/form-data",
+     }}
+   )
+}
+export const deleteUploadAvatarService = (data)=>{
+        return request.delete(api.uploadAvatar,{params:{fileName: data}})
+}

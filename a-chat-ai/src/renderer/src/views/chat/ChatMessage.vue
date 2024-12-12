@@ -99,11 +99,11 @@ const handleCopy = (e)=>{
               </div>
             </template>
           </div>
-          <AvatarBase :width="35" :id="data.question.userId"></AvatarBase>
+          <AvatarBase :avatar="currentChatSession.userAvatar" :width="35" :id="data.question.userId"></AvatarBase>
     </div>
     <div class="message-content-other" v-for="ans in data.question.answers">
         <div class="user-avatar">
-             <AvatarBase :width="35" :id="ans.answerRobotId"></AvatarBase>
+             <AvatarBase :avatar="currentChatSession.robotAvatar" :width="35" :id="ans.answerRobotId"></AvatarBase>
         </div>
         <div
           :class="['content-panel',ans.answerType === 3? 'content-panel-media':'' ,ans.answerRobotType===1?'group-content':'']">
@@ -130,6 +130,7 @@ const handleCopy = (e)=>{
   border-radius: 10px;
   border: 1px solid #2c2c2c;
   background: #2c2c2c;
+  width: auto;
   display: grid;
   grid-template-columns: repeat(1,1fr);
 }

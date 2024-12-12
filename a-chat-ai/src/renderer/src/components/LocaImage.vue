@@ -1,10 +1,15 @@
 <script setup>
-import {computed} from "vue";
+import {computed, ref} from "vue";
+import {getAvatarUrl} from "../api/ChatSessionMessageService";
 
 const props =defineProps({
   width: {
     type:Number,
     default: 170
+  },
+  avatar:{
+     type: String,
+     default: ''
   },
   showPlay:{
     type: Boolean,
@@ -26,13 +31,6 @@ const props =defineProps({
     default: false
   }
 })
-const serverUrl = computed(()=>{
-     if(!props.fileId){
-       return;
-     }
-     return ''
-     // getUrl
-})
 const errorHandler = ()=>{
   console.log('error')
 }
@@ -40,7 +38,7 @@ const errorHandler = ()=>{
 
 <template>
    <div class="image-panel" @click="showImageHandler">
-       <el-avatar :src="serverUrl" shape="square" fit="cover" :size="width" @error="errorHandler">
+       <el-avatar :src="avatar" shape="square" fit="cover" :size="width" @error="errorHandler">
             <svg
               style="fill: currentColor;overflow: hidden;width: 4em;height: 4em;"
               aria-hidden="true"
@@ -54,10 +52,11 @@ const errorHandler = ()=>{
 <style scoped>
 .image-panel{
   position: relative;
+  opacity: 1;
   display: flex;
   overflow: hidden;
   cursor: pointer;
-  background: #ddd;
+  background: #232323;
   .play-panel{
     z-index:2;
     top: 0;

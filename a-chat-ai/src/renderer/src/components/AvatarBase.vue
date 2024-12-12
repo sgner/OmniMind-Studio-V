@@ -5,13 +5,17 @@ const props =defineProps({
   id:{
     type: String,
   },
+  avatar:{
+    type: String,
+    default: ''
+  },
   width: {
     type:Number,
     default: 40
   },
   borderRadius:{
     type: Number,
-    default: 0
+    default: 40
   },
   showDetail:{
     type: Boolean,
@@ -33,6 +37,7 @@ const showDetailHandler = ()=>{
     <show-local-image
       :width="width"
       :file-id="id"
+      :avatar="avatar"
       part-type="avatar"
       :force-get="true"
     >

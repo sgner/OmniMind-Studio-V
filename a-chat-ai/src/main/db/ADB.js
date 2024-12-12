@@ -122,7 +122,20 @@ const run = (sql, params) => {
     stmt.finalize();
   });
 }
-
+// const deleteOne = (tableName, data, paramData)=>{
+//   const columnsMap = globalColumnsMap[tableName];
+//   const dbColumns = [];
+//   const params = [];
+//   const whereColumns = [];
+//   for (let item in data) {
+//     if (data[item] !== undefined && columnsMap[item] !== undefined) {
+//       dbColumns.push(`${columnsMap[item]} = ?`);
+//       params.push(data[item]);
+//     }
+//   }
+//
+//
+// }
 
 const insert = (sqlPrefix, tableName, data) => {
   const columnsMap = globalColumnsMap[tableName];

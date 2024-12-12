@@ -162,12 +162,16 @@ const route = useRoute()
 const createSession =async (data)=>{
    const result = await createSessionService(data)
    if(result.data !== null){
-        await router.push({path:"/main",query:result.data})
+     const session = result.data;
+     session.time =  new Date().getTime();
+     await router.push({path:"/main",query:session})
      }
 }
 const applyRobot = async (robotId)=>{
   const result = await applyRobotService({"robotId":robotId});
-  await router.push({path:"/main",query:result.data})
+  const session = result.data;
+  session.time =  new Date().getTime();
+  await router.push({path:"/main",query:session})
 }
 </script>
 

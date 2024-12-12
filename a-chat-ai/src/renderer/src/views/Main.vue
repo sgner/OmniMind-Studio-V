@@ -2,11 +2,18 @@
 import {onMounted, ref, watch} from "vue";
 import dynamicImageUrl from '../assets/img/background_main.jpg'
 import WinOp from "../components/WinOp.vue";
-import {useRoute, useRouter} from "vue-router";
+import {onBeforeRouteUpdate, useRoute, useRouter} from "vue-router";
+import AvatarBase from "../components/AvatarBase.vue";
 
 
 const menuList = ref(
   [
+    {
+    name: "avatar",
+    countKey: 'avatarCount',
+    src: "../../src/assets/img/adi.png",
+    position: "top"
+   },
     {
       name: 'chat',
       icon: 'icon-liaotian',
@@ -21,6 +28,7 @@ const menuList = ref(
       countKey: 'contactApplyCount',
       position: 'top'
     },
+
     {
       name: 'mysetting',
       icon: 'icon-more2',
@@ -31,10 +39,10 @@ const menuList = ref(
 )
 const routed = useRoute()
 const routerd = useRouter()
-const currentMenu = ref(menuList.value[0]);
+const currentMenu = ref(menuList.value[1]);
 const changeMenu=  async (item)=>{
   currentMenu.value = item
-  routerd.push(item.path)
+  await routerd.push({path: item.path})
   await preApi.setSessionSelect();
 }
 const componentRef = ref()
@@ -44,13 +52,11 @@ const loadingGif = ref("../src/assets/img/loading.gif")
 const redirect = async()=>{
   isLoading.value = true
   try{
-    console.log(routed.query)
     if ( Object.keys(routed.query).length !== 0&&routed.query !== null){
-      console.log("SUCCESSSUCCESSSUCCESSSUCCESSSUCCESSSUCCESSSUCCESSSUCCESSSUCCESSSUCCESSSUCCESSSUCCESS")
-      currentMenu.value = menuList.value[0]
+      currentMenu.value = menuList.value[1]
       await routerd.push({path:"/main/chat",query:routed.query})
     }else{
-      await routerd.push({path:"/main/chat",query:{}})
+      await routerd.push({path:"/main/chat"})
     }
   }finally {
     isLoading.value = false
@@ -59,12 +65,11 @@ const redirect = async()=>{
 onMounted(() => {
   redirect();
 });
-
 // 监听路由的 query 参数变化
-watch(() => routed.query.sessionId, (newSessionId) => {
-  console.log(newSessionId)
+watch(() => routed.query, (newSession) => {
+  console.log(newSession)
   console.log(routed.query.sessionId)
-  if(newSessionId!==undefined&&newSessionId!==""&&newSessionId!==null){
+  if(newSession!==undefined&&newSession!==null&& Object.keys(newSession).length!==0){
     redirect();
   }
 });
@@ -76,13 +81,15 @@ watch(() => routed.query.sessionId, (newSessionId) => {
       <el-image fit="cover" :src="loadingGif" alt="Loading..." />
     </div>
     <div class="left-sider">
-      <div></div>
       <div class="menu-list">
         <template v-for="item in menuList">
+          <div v-if="item.name === 'avatar'" class="avatar-m">
+              <AvatarBase :avatar="item.src" :width="48" :border-radius="10"></AvatarBase>
+          </div>
           <div
             class="popover-user-panel"
             :class="{'active': currentMenu.path === item.path}"
-            v-if="item.position === 'top'"
+            v-if="item.position === 'top' && item.name !== 'avatar'"
             @click="changeMenu(item)">
             <svg
               style="fill: currentColor; overflow: hidden; width: 2.5em; height: 2.5em;"
@@ -121,6 +128,11 @@ watch(() => routed.query.sessionId, (newSessionId) => {
 </template>
 
 <style scoped>
+.avatar-m{
+   border: 3px solid #67119a;
+   border-radius: 10px;
+}
+
 .loading-overlay {
   border-radius: 15px;
   position: fixed;

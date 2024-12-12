@@ -2,12 +2,12 @@
 import layout from '@/components/layout.vue';
 import "../../assets/musicBase.less"
 import {useCollapsedStore} from "../../stores/Collapsed";
-import {computed, onMounted, ref, watch} from "vue";
+import {computed, onBeforeUnmount, onMounted, ref, watch} from "vue";
 import chatSession from "@/views/chat/ChatSession.vue"
 import SunoSesion from '../audio/suno/SunoSession.vue'
 import {useChatSessionStore} from "../../stores/ChatSession";
 import ContextMenu from "@imengyu/vue3-context-menu";
-import "@imengyu/vue3-context-menu/lib/vue3-context-menu.css"
+import "../../assets/theme/cust-context-menu.scss"
 import {useChatMessageStore} from "../../stores/ChatMessage";
 import Message from "@/views/chat/Message.vue";
 import ChatMessage from "./ChatMessage.vue";
@@ -15,7 +15,7 @@ import {loadUploadedFile} from "../../api/ChatSessionMessageService";
 import {updateSessionNoReadCountService} from "../../api/UpdateService";
 import {useUploadDataStore} from "../../stores/UploadData";
 import {ElMessage, ElNotification} from "element-plus";
-import {useRoute, useRouter} from "vue-router";
+import {onBeforeRouteUpdate, useRoute, useRouter} from "vue-router";
 import Suno from "../audio/suno/Suno.vue";
 import message from "../../utils/Message";
 import { useSunoMusicList } from '../../stores/SunoMusicList'
@@ -32,7 +32,7 @@ onMounted(() => {
   preApi.receiveMessage((error, session,data) => {
     if (error) {
       console.error("消息接收失败：", error);
-    } else if(data === null || data === undefined){
+    } else if(data.messageType === 0){
       console.log("接收到消息：", session);
       sortChatSession(session);
       cuSession.value = session;
@@ -43,6 +43,10 @@ onMounted(() => {
       messageCountInfo.noData = false;
       messageCountInfo.maxMessageId = null;
       loadChatMessage();
+      if(data.contactType === 3){
+        console.log("xf")
+         chatSessionClickHandler(data.session)
+      }
       goBottom();
       const lastMessage = chatMessageStore.message[chatMessageStore.message.length - 1];
       if(currentChatSession.value.sessionId !== lastMessage.sessionId){
@@ -86,7 +90,7 @@ const onContextmenu = (data,e)=>{
     items:[{
       label: data.topType === 0 ?"置顶":"取消置顶",
       onClick:()=>{
-        setTop(data.robotId,data.topType === 0 ?1:0)
+        setTop(data.sessionId,data.topType === 0 ?1:0)
       }
     }, {
       label: '删除聊天',
@@ -157,6 +161,7 @@ const loadChatMessage = async () =>{
     messageCountInfo.maxMessageId = message.messageList.length > 0 ? message.messageList[message.messageList.length-1].question.id : null;
   }
   chatMessageStore.setChatMessage(messageList.value);
+  console.log(JSON.stringify(chatMessageStore.message))
 }
 const goBottom = () => {
   const items = document.querySelectorAll('.message-item');
@@ -193,6 +198,29 @@ const createSession = async ()=>{
   }
 }
 createSession();
+onBeforeRouteUpdate(()=>{
+  console.log("onBeforeRouteUpdate")
+  createSession();
+})
+
+const scrollHeight = ref(768); // 初始高度
+
+// 动态计算max-height
+const updateScrollHeight = () => {
+  const offset = 120; // 顶部搜索栏和其他内容高度为120px
+  scrollHeight.value = window.innerHeight - offset;
+};
+
+// 在组件挂载时监听窗口变化
+onMounted(() => {
+  updateScrollHeight(); // 初始计算一次高度
+  window.addEventListener("resize", updateScrollHeight); // 监听窗口大小变化
+});
+
+// 在组件卸载时移除监听器
+onBeforeUnmount(() => {
+  window.removeEventListener("resize", updateScrollHeight);
+});
 
 </script>
 
@@ -212,11 +240,13 @@ createSession();
         </transition>
       </div>
       <div class="chat-session-list">
+        <el-scrollbar :max-height="scrollHeight">
         <template v-for="item in chatSessionStore.chatSession">
           <chatSession v-if="item.robotType !== 6 && item.robotType !== 2" :data="item" :currentSession="item.sessionId === currentChatSession.sessionId" @click="chatSessionClickHandler(item)" @contextmenu="onContextmenu(item,$event)"></chatSession>
           <SunoSesion v-else-if="item.robotId === 'R7429603393684e66be1463430c753da5'" :data="item" :current-session="item.sessionId === currentChatSession.sessionId" @click="chatSessionClickHandler(item)" @contextmenu="onContextmenu(item,$event)"></SunoSesion>
           <XfCosWorkSpaceSession v-else-if="item.robotId === 'R44ef9ed192fb4bbdaa1a8d8e85aa3bdf'" :data="item" :current-session="item.sessionId === currentChatSession.sessionId" @click="chatSessionClickHandler(item)" @contextmenu="onContextmenu(item,$event)"></XfCosWorkSpaceSession>
         </template>
+        </el-scrollbar>
       </div>
     </template>
     <template #right-content>

@@ -1,26 +1,36 @@
 <script setup>
 import { onBeforeUnmount, ref } from 'vue'
 import CreatePlayer from './CreatePlayer.vue'
-const roleList = ref([])
-const createRole = ref(false)
-
-
+import RoleCardDisplay from "./RoleCardDisplay.vue";
+import {useCreateRoleStore} from "../../../stores/CreateRole";
+import {useRoleCardStore} from "../../../stores/RoleCard";
+import {getRoleList} from "../../../api/CosPlayService";
+const createRoleStore = useCreateRoleStore()
+const roleCardStore = useRoleCardStore()
+const getRoles = async ()=>{
+    const result =  await getRoleList();
+    if(result.code === 20000){
+        roleCardStore.roleCard = result.data;
+      console.log(roleCardStore.roleCard)
+    }
+}
+getRoles()
 </script>
 
 <template>
 
-  <div class="cos-bg-container">
+  <div v-if="roleCardStore.roleCard.length === 0" class="cos-bg-container">
     <!-- 背景图片层 -->
     <div class="cos-bg"></div>
     <!-- 毛玻璃层 -->
     <div class="cos-blur-overlay"
-         :style="createRole ? { backdropFilter: 'blur(20px)', backgroundColor: 'rgba(0, 0, 0, 0.4)',transition: 'backdrop-filter 0.7s ease, background-color 0.7s ease, transform 0.7s ease' } : {}">
+         :style="createRoleStore.createRole ? { backdropFilter: 'blur(20px)', backgroundColor: 'rgba(0, 0, 0, 0.1)',transition: 'backdrop-filter 0.7s ease, background-color 0.7s ease, transform 0.7s ease' } : {}">
       <!-- 其他组件或内容 -->
-      <div :class="createRole?'R-container': 'content' ">
-        <div v-if="!createRole">
+      <div :class="createRoleStore.createRole?'R-container': 'content' ">
+        <div v-if="!createRoleStore.createRole">
           <span style="font-size: 50px;font-weight: 600">欢迎来到角色扮演</span>
           <h3>在这里，你可以自定义角色，剧情等多个玩法</h3>
-          <el-button style="margin-top: 20px" type="goon" @click="createRole = true">开始创建一个角色吧！</el-button>
+          <el-button style="margin-top: 20px" type="goon" @click="createRoleStore.createRole = true">开始创建一个角色吧！</el-button>
         </div>
         <div v-else class="create-player-wrapper">
             <CreatePlayer></CreatePlayer>
@@ -28,24 +38,32 @@ const createRole = ref(false)
       </div>
     </div>
   </div>
-  <div class="bottom-bg" v-if="roleList.length>0">
+  <div class="bottom-bg" v-if="roleCardStore.roleCard.length>0">
+      <div class="role-list-title"><h1>您的玩家卡</h1></div>
     <div class="first-play">
-      <el-image fit="contain" src="../../../../src/assets/img/fper.jpg"></el-image>
+      <RoleCardDisplay :cards="roleCardStore.roleCard"></RoleCardDisplay>
     </div>
   </div>
 
 </template>
 
 <style scoped>
+
+.role-list-title{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-left: 10px;
+}
 .first-play{
   display: flex;
   justify-content: center;
-  align-items: center;
   height: 100%;
   width: 100%;
 }
 .bottom-bg{
-  height: 80%;
+  overflow: auto;
+  height: 100%;
   background: linear-gradient(to right, #211928 0%, #1f1005 100%);
 }
 .create-player-wrapper {
@@ -58,7 +76,11 @@ const createRole = ref(false)
   top: 0;
   left: 0;
 }
-
+.create-player-wrapper > * {
+  flex-shrink: 0;
+  flex-grow: 1;
+  max-width: 90%;
+}
 .cos-bg-container-up {
   flex: 1;
   position: relative; /* 确保 .bg 的 z-index 基于 .right-container */

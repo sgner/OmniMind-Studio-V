@@ -29,13 +29,12 @@ const preApi = {
   "receiveMessage": (callback) => {
       ipcRenderer.on("receiveMessage", async (e, data) => {
       // console.log("收到消息：" + data.messageType);
-
       if (data.messageType === 0) {
         try {
           const session = await loadChatSession();
-          callback(null, session);  // 使用回调传递消息内容
+          callback(null, session,data);  // 使用回调传递消息内容
         } catch (error) {
-          callback(error, null);  // 如果发生错误，传递错误信息
+          console.log(error)
         }
       } else if(data.messageType === 15){
         const session = await loadChatSession();
@@ -48,8 +47,8 @@ const preApi = {
       }
     });
   },
-  'setTop':async (robotId,isTop)=>{
-    return await ipcRenderer.invoke("setTop", {robotId, isTop})
+  'setTop':async (sessionId,isTop)=>{
+    return await ipcRenderer.invoke("setTop", {sessionId, isTop})
   },
   'delSession': async (robotId)=>{
      return await ipcRenderer.invoke("delSession",robotId)

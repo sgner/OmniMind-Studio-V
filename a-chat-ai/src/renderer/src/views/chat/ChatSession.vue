@@ -20,9 +20,10 @@
 <template>
  <div :class="['chat-session-item',currentSession?'active':'']">
     <div class="contact-tag" v-if="data.robotType === 1">群组</div>
+    <div class="contact-tag" v-if="data.robotType === 3">cosplay</div>
    <transition name="avatar-resize">
      <div class="avatar-wrapper" :class="{collapsed:isCollapsed}">
-       <AvatarBase :id="data.robotId" :width="58" :key="data.robotId"></AvatarBase>
+       <AvatarBase :avatar="data.robotAvatar" :id="data.robotId" :width="58" :key="data.robotId"></AvatarBase>
      </div>
    </transition>
    <transition name="fade">

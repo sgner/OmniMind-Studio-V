@@ -1,4 +1,14 @@
 const api = {
+  deleteRole:"/xf/cos/role",
+  cosChat:"/xf/cos/play",
+  cosSession:"xf/cos/session",
+  modifyRole:"xf/cos/role",
+  avatarUrl: "/user/avatar",
+  roleList: "/xf/cos",
+  uploadAvatar: "/upload/avatar",
+  initPlayer: "/xf/cos/register",
+  addRole:"/xf/cos/addRole",
+  initPlayerFast:"/xf/cos/customize/quickStart",
   sunoSongList:"/suno/result",
   genSongCustom:"/suno/custom",
   genSonSim:"/suno/fast",
@@ -52,9 +62,6 @@ const api = {
   delUpdate: '/admin/delUpdate',//删除更新
   saveUpdate: "/admin/saveUpdate",//保存更新
   postUpdate: "/admin/postUpdate",//发布更新
-  loadBeautyAccount: "/admin/loadBeautyAccountList",//靓号列表
-  saveBeautAccount: "/admin/saveBeautAccount",//保存靓号
-  delBeautAccount: "/admin/delBeautAccount",//删除靓号
   checkVersion: "/update/checkVersion",//更新检测
   clickUpdateSession: '/update/sessionNoReadCount' // 点击后更新未读消息数量
 }

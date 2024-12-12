@@ -62,7 +62,7 @@ const login = async () => {
       tokenStore.setToken(loginResult.data.jwt)
       userInfoStore.userInfo = {userId:loginResult.data.userId,userName:loginResult.data.userName};
       validateFailed.value =  false
-      await router.push({path:"/main",query:{}})
+      await router.push({path:"/main"})
       preApi.routerToMain(null)
       preApi.successLogin(loginResult.data)
     }catch (e){

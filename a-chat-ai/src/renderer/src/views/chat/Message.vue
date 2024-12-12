@@ -1,7 +1,7 @@
 <script setup>
 import {useRoute} from "vue-router";
 import {ref, watch, watchEffect} from "vue";
-import {sendChatMessage, uploadFile,loadUploadedFile} from "../../api/ChatSessionMessageService";
+import {sendChatMessage, uploadFile,loadUploadedFile,cosSendChatMessage} from "../../api/ChatSessionMessageService";
 import {useUserInfoStore} from "../../stores/UserInfo";
 import {useChatMessageStore} from "../../stores/ChatMessage";
 import {getFileType} from "../../utils/FileType";
@@ -70,8 +70,12 @@ const uploadId = ref(uuidv4().replace(/-/g,''))
           await uploadDataStore.removeData(props.currentChatSession.sessionId)
           showFileList.value = []
           chatMessageStore.setChatMessage(chatMessageStore.message.concat(message2QA(messageObj)))
-          const result = await sendChatMessage(messageObj,"gpt-4o-mini",false)
-           // 更新列表，
+          if(props.currentChatSession.robotType === 3){
+               messageObj.agentId = props.currentChatSession.robotId;
+               await cosSendChatMessage(messageObj,false)
+          }else{
+            const result = await sendChatMessage(messageObj,"gpt-4o-mini",false)
+          }
     }
    const message2QA =(messageObj)=>{
       messageObj.userName = userInfoStore.userInfo.userName;

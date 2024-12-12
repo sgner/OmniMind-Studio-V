@@ -15,7 +15,9 @@ const search= ()=>{
 const searchResults = ref([])
 const applyRobot = async (robotId)=>{
    const result =  await applyRobotService({"robotId":robotId});
-   await router.push({path:"/main",query:result.data})
+   const session = result.data;
+   session.time = new Date().getTime();
+   await router.push({path:"/main",query:session})
 }
 const unSubscribed =()=>{
 

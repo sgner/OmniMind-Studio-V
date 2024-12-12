@@ -8,7 +8,7 @@ import {changeWindowSize, loginSuccess, winTitleOp, setLocalStore,setSessionSele
 import store from './store'
 const register_height =530;
 const main_width = 1492;
-const main_height = 868;
+const main_height = 997;
 import {selectChatSessionList, updateChatSession, updateSessionInfo4Message} from "./db/ChatSessionModel";
 import {queryAll, update} from "./db/ADB";
 import dayjs from "dayjs";
@@ -68,8 +68,7 @@ function createWindow() {
      }
      mainWindow.center()
      mainWindow.setMaximizable(true)
-     // mainWindow.setMaximumSize(1424,1068)
-     mainWindow.setMinimumSize(1468,935)
+     mainWindow.setMinimumSize(1468,997)
    })
 
   loginSuccess((data)=>{
@@ -94,8 +93,8 @@ function createWindow() {
     return await selectChatSessionList();
   })
 
-  ipcMain.handle('setTop',async (e,{robotId,isTop})=>{
-      await update('session',{topType:isTop},{robotId:robotId,userId:store.getUserId()})
+  ipcMain.handle('setTop',async (e,{sessionId,isTop})=>{
+      await update('session',{topType:isTop},{sessionId:sessionId,userId:store.getUserId()})
       return await queryAll( "select * from session where user_id = ? and status = 1",[store.getUserId()])
   })
   ipcMain.handle('delSession',async (e,robotId)=>{

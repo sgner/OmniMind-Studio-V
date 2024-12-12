@@ -41,7 +41,9 @@ const add_tables = [
   "   last_time TEXT NOT NULL," +  // 使用 TEXT 类型来存储 datetime
   "   robot_number INTEGER,"+
   "   top_type INTEGER DEFAULT 0,"+
-  "   user_name VARCHAR(255)" +
+  "   user_name VARCHAR(255)," +
+  "   user_avatar VARCHAR(255),"+
+  "   robot_avatar VARCHAR(255)"+
   ");",
 
   "CREATE TABLE IF NOT EXISTS user_setting("+

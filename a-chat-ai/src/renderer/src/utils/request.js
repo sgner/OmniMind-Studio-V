@@ -21,6 +21,7 @@ instance.interceptors.request.use(
     if (tokenStore.token !== "") {
       config.headers.Authorization = tokenStore.token;
     }
+    console.log(lock.value)
     if (lock.value) {
       loading = ElLoading.service({
         lock: true,
@@ -37,6 +38,7 @@ instance.interceptors.request.use(
   (err) => {
     Message.error("请求发送失败");
     if (loading) loading.close();
+    lock.value = true;
     return Promise.reject("请求发送失败");
   }
 );
@@ -46,7 +48,7 @@ instance.interceptors.response.use(
   (response) => {
     const { errorCallback, showError = true, responseType } = response.config;
     if (loading) loading.close();
-
+    lock.value = true;
     const responseData = response.data;
     if (responseType === "arraybuffer" || responseType === "blob") {
       return responseData;
@@ -69,6 +71,7 @@ instance.interceptors.response.use(
   (err) => {
     console.log(err)
     if (loading) loading.close();
+    lock.value = true;
     if (err.response.status===401) {
       message.error("登录状态异常")
       return Promise.reject({ showError: true, msg: "登录状态异常" });

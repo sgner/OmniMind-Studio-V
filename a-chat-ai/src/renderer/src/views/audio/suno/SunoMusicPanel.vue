@@ -27,12 +27,13 @@ watch(()=>props.song, (newSong)=>{
             loading.value = false;
        }
 })
+console.log(props.song)
 const genGif = ref("../../../../src/assets/img/giphy.gif")
 </script>
 
 <template>
 
-    <div class="bg-load" v-if="song === null || song === undefined || Object.keys(song).length===0">
+    <div class="bg-load" v-if="song.audio_url === null || song === null || song === undefined || Object.keys(song).length===0">
       <el-skeleton style="width: 100% ;opacity: 0.4" :loading="loading" animated>
             <template #template>
                <el-skeleton-item variant="image" style="width: 220px;height: 220px"></el-skeleton-item>

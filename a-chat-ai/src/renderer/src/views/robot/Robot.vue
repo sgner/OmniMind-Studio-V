@@ -129,7 +129,7 @@ const scrollHeight = ref(768); // 初始高度
 
 // 动态计算max-height
 const updateScrollHeight = () => {
-  const offset = 120; // 假设顶部搜索栏和其他内容高度为120px
+  const offset = 120; // 顶部搜索栏和其他内容高度为120px
   scrollHeight.value = window.innerHeight - offset;
 };
 
@@ -173,7 +173,9 @@ const viewDetails = (robotId,robotName)=>{
 const createSession =async (data)=>{
   const result = await createSessionService(data)
   if(result.data !== null){
-    await router.push({path:"/main",query:result.data})
+    const session = result.data
+    session.time = new Date().getTime()
+    await router.push({path:"/main",query:session})
   }
 }
 </script>
